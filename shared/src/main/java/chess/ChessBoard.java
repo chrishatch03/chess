@@ -39,6 +39,29 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        squares = new ChessPiece[8][8];
     }
+
+    public static boolean inBounds(ChessPosition position) {
+        var x = position.getColumn();
+        var y = position.getRow();
+        if (x > 7 || x < 0) {
+            System.out.println(String.format("Col boundary error, (%s,%s) not in range.", position.getColumn(), position.getRow()));
+            return false;
+        }
+
+        if (y > 7 || y < 0) {
+            System.out.println(String.format("Row boundary error, (%s,%s) not in range.", position.getColumn(), position.getRow()));
+            return false;
+        }
+
+        return true;
+    }
+
+//    public static boolean isEmpty(ChessPosition position) {
+//        if (self.getPiece(position)) {
+//
+//        }
+//    }
+
 }
