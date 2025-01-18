@@ -14,6 +14,7 @@ import java.util.Objects;
 public class ChessPiece {
     private final ChessGame.TeamColor teamColor;
     private final PieceType pieceType;
+//    private int numMoves = 0;
 
     public ChessPiece(ChessGame.TeamColor teamColor, PieceType type) {
         this.teamColor = teamColor;
@@ -90,9 +91,18 @@ public class ChessPiece {
             case QUEEN -> calculator = new QueenMovesCalculator();
             case ROOK -> calculator = new RookMovesCalculator();
             case KNIGHT -> calculator = new KnightMovesCalculator();
+            case PAWN -> calculator = new PawnMovesCalculator();
         }
 
         return calculator.pieceMoves(board, myPosition);
 
     }
+
+//    public int getNumMoves() {
+//        return numMoves;
+//    }
+
+//    public void incrementMoves() {
+//        numMoves += 1;
+//    }
 }
