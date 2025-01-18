@@ -5,60 +5,98 @@ import java.util.Collection;
 
 public class BishopMovesCalculator implements PieceMovesCalculator {
 
-    public Collection<ChessMove> pieceMoves(ChessBoard chessBoard, ChessPosition chessPosition) {
-        var x = chessPosition.getColumn();
-        var y = chessPosition.getRow();
+    public Collection<ChessMove> pieceMoves(ChessBoard chessBoard, ChessPosition bishopPosition) {
+        ArrayList<ChessMove> validMoves = new ArrayList<ChessMove>();
+        ChessPiece bishop = chessBoard.getPiece(bishopPosition);
 
-//        get moves going up and to the left
-        ArrayList<ChessMove> diagUpLeft = new ArrayList<ChessMove>();
-        ChessPosition oldPosition = chessPosition;
-        while (ChessBoard.inBounds(oldPosition)) {
-            ChessPosition newPosition = new ChessPosition(oldPosition.getRow() + 1, oldPosition.getColumn() - 1);
-            ChessMove newMove = new ChessMove(chessPosition, newPosition, null);
-            diagUpLeft.add(newMove);
-            oldPosition = newPosition;
-        }
+//      get moves going up and to the right
+        ChessPosition evalPosition = new ChessPosition(bishopPosition.getRow() + 1, bishopPosition.getColumn() + 1);
+        while (ChessBoard.inBounds(evalPosition)) {
 
-        ArrayList<ChessMove> diagUpRight = new ArrayList<ChessMove>();
-        oldPosition = chessPosition;
-        while (ChessBoard.inBounds(oldPosition)) {
-            ChessPosition newPosition = new ChessPosition(oldPosition.getRow() + 1, oldPosition.getColumn() + 1);
-            ChessMove newMove = new ChessMove(chessPosition, newPosition, null);
-            diagUpRight.add(newMove);
-            oldPosition = newPosition;
-        }
+            if (chessBoard.isEmpty(evalPosition)) {
+                ChessMove newMove = new ChessMove(bishopPosition, evalPosition, null);
+                validMoves.add(newMove);
+            } else {
+                ChessPiece evalPiece = chessBoard.getPiece(evalPosition);
+                ChessGame.TeamColor evalTeamColor = evalPiece.getTeamColor();
 
-        ArrayList<ChessMove> diagDownLeft = new ArrayList<ChessMove>();
-        oldPosition = chessPosition;
-        while (ChessBoard.inBounds(oldPosition)) {
-            ChessPosition newPosition = new ChessPosition(oldPosition.getRow() - 1, oldPosition.getColumn() - 1);
-            ChessMove newMove = new ChessMove(chessPosition, newPosition, null);
-            diagDownLeft.add(newMove);
-            oldPosition = newPosition;
+                if (bishop.getTeamColor() == evalTeamColor) {
+                    break;
+                } else if (bishop.getTeamColor() != evalTeamColor) {
+                    ChessMove newMove = new ChessMove(bishopPosition, evalPosition, null);
+                    validMoves.add(newMove);
+                    break;
+                }
+            }
+            evalPosition = new ChessPosition(evalPosition.getRow() + 1, evalPosition.getColumn() + 1);
         }
 
-        ArrayList<ChessMove> diagDownRight = new ArrayList<ChessMove>();
-        oldPosition = chessPosition;
-        while (ChessBoard.inBounds(oldPosition)) {
-            ChessPosition newPosition = new ChessPosition(oldPosition.getRow() - 1, oldPosition.getColumn() + 1);
-            ChessMove newMove = new ChessMove(chessPosition, newPosition, null);
-            diagDownRight.add(newMove);
-            oldPosition = newPosition;
+//      Down and to the right
+        evalPosition = new ChessPosition(bishopPosition.getRow() - 1, bishopPosition.getColumn() + 1);
+        while (ChessBoard.inBounds(evalPosition)) {
+
+            if (chessBoard.isEmpty(evalPosition)) {
+                ChessMove newMove = new ChessMove(bishopPosition, evalPosition, null);
+                validMoves.add(newMove);
+            } else {
+                ChessPiece evalPiece = chessBoard.getPiece(evalPosition);
+                ChessGame.TeamColor evalTeamColor = evalPiece.getTeamColor();
+
+                if (bishop.getTeamColor() == evalTeamColor) {
+                    break;
+                } else if (bishop.getTeamColor() != evalTeamColor) {
+                    ChessMove newMove = new ChessMove(bishopPosition, evalPosition, null);
+                    validMoves.add(newMove);
+                    break;
+                }
+            }
+            evalPosition = new ChessPosition(evalPosition.getRow() - 1, evalPosition.getColumn() + 1);
         }
 
-        ArrayList<ChessMove> chessMoves = new ArrayList<ChessMove>();
-        for(int i = 0; i < diagUpLeft.size(); i++) {
-            chessMoves.add(diagUpLeft.get(i));
+//      Down and to the left
+        evalPosition = new ChessPosition(bishopPosition.getRow() - 1, bishopPosition.getColumn() - 1);
+        while (ChessBoard.inBounds(evalPosition)) {
+
+            if (chessBoard.isEmpty(evalPosition)) {
+                ChessMove newMove = new ChessMove(bishopPosition, evalPosition, null);
+                validMoves.add(newMove);
+            } else {
+                ChessPiece evalPiece = chessBoard.getPiece(evalPosition);
+                ChessGame.TeamColor evalTeamColor = evalPiece.getTeamColor();
+
+                if (bishop.getTeamColor() == evalTeamColor) {
+                    break;
+                } else if (bishop.getTeamColor() != evalTeamColor) {
+                    ChessMove newMove = new ChessMove(bishopPosition, evalPosition, null);
+                    validMoves.add(newMove);
+                    break;
+                }
+            }
+            evalPosition = new ChessPosition(evalPosition.getRow() - 1, evalPosition.getColumn() - 1);
         }
-        for(int i = 0; i< diagUpRight.size(); i++) {
-            chessMoves.add(diagUpRight.get(i));
+
+//      Up and to the Left
+        evalPosition = new ChessPosition(bishopPosition.getRow() + 1, bishopPosition.getColumn() - 1);
+        while (ChessBoard.inBounds(evalPosition)) {
+
+            if (chessBoard.isEmpty(evalPosition)) {
+                ChessMove newMove = new ChessMove(bishopPosition, evalPosition, null);
+                validMoves.add(newMove);
+            } else {
+                ChessPiece evalPiece = chessBoard.getPiece(evalPosition);
+                ChessGame.TeamColor evalTeamColor = evalPiece.getTeamColor();
+
+                if (bishop.getTeamColor() == evalTeamColor) {
+                    break;
+                } else if (bishop.getTeamColor() != evalTeamColor) {
+                    ChessMove newMove = new ChessMove(bishopPosition, evalPosition, null);
+                    validMoves.add(newMove);
+                    break;
+                }
+            }
+            evalPosition = new ChessPosition(evalPosition.getRow() + 1, evalPosition.getColumn() - 1);
         }
-        for(int i = 0; i < diagDownLeft.size(); i++) {
-            chessMoves.add(diagDownLeft.get(i));
-        }
-        for(int i = 0; i< diagDownRight.size(); i++) {
-            chessMoves.add(diagDownRight.get(i));
-        }
-        return chessMoves;
+
+        return validMoves;
     }
 }

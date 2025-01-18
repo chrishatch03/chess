@@ -1,5 +1,8 @@
 package chess;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -20,7 +23,22 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        squares[position.getRow()][position.getColumn()] = piece;
+        ChessPosition normalizedPosition = new ChessPosition(position.getRow()-1, position.getColumn()-1);
+        squares[normalizedPosition.getRow()][normalizedPosition.getColumn()] = piece;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessBoard that = (ChessBoard) o;
+        return Objects.deepEquals(squares, that.squares);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(squares);
     }
 
     /**
@@ -31,7 +49,20 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return squares[position.getRow()][position.getColumn()];
+        ChessPosition normalizedPosition = new ChessPosition(position.getRow()-1, position.getColumn()-1);
+        return squares[normalizedPosition.getRow()][normalizedPosition.getColumn()];
+    }
+
+    public boolean isEmpty(ChessPosition position) {
+            ChessPiece piece = this.getPiece(position);
+
+            if (piece != null) {
+                switch (piece.getPieceType()) {
+                    case BISHOP, QUEEN, KING, ROOK, PAWN, KNIGHT -> { return false; }
+                }
+                return true;
+            }
+            return true;
     }
 
     /**
@@ -43,25 +74,31 @@ public class ChessBoard {
     }
 
     public static boolean inBounds(ChessPosition position) {
-        var x = position.getColumn();
-        var y = position.getRow();
-        if (x > 7 || x < 0) {
-            System.out.println(String.format("Col boundary error, (%s,%s) not in range.", position.getColumn(), position.getRow()));
+        var row = position.getRow();
+        var col = position.getColumn();
+
+        if (row > 8 || row < 1) {
+//            System.out.println(String.format("Row boundary error, (%s,%s) not in range.", row, col));
             return false;
         }
 
-        if (y > 7 || y < 0) {
-            System.out.println(String.format("Row boundary error, (%s,%s) not in range.", position.getColumn(), position.getRow()));
+        if (col > 8 || col < 1) {
+//            System.out.println(String.format("Col boundary error, (%s,%s) not in range.", row, col));
             return false;
         }
 
         return true;
     }
 
-//    public static boolean isEmpty(ChessPosition position) {
-//        if (self.getPiece(position)) {
-//
-//        }
-//    }
-
+    /***
+     * Returns a string representation
+     *
+     * @return String
+     */
+    @Override
+    public String toString() {
+        return "ChessBoard{" +
+                "squares=" + Arrays.toString(squares) +
+                '}';
+    }
 }
