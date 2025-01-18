@@ -2,17 +2,21 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Scanner;
 
 public class PawnMovesCalculator implements PieceMovesCalculator {
 
-//    fully implemented should return the user's chosen piece, not a queen
-    public ChessPiece getPromotionPiece() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Which piece would you like to promote your pawn to? ");
-        String chosenPiece = scanner.nextLine();
-        System.out.println(String.format("Chosen %s", chosenPiece));
-        return new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
+    ArrayList<ChessMove> getMoves(int lastRow, ChessPosition pawnPosition, ChessPosition position) {
+        ArrayList<ChessMove> validMoves = new ArrayList<ChessMove>();
+
+        if (position.getRow() == lastRow) {
+            validMoves.add(new ChessMove(pawnPosition, position, ChessPiece.PieceType.QUEEN));
+            validMoves.add(new ChessMove(pawnPosition, position, ChessPiece.PieceType.BISHOP));
+            validMoves.add(new ChessMove(pawnPosition, position, ChessPiece.PieceType.ROOK));
+            validMoves.add(new ChessMove(pawnPosition, position, ChessPiece.PieceType.KNIGHT));
+        } else {
+            validMoves.add(new ChessMove(pawnPosition, position, null));
+        }
+        return validMoves;
     }
 
 
@@ -25,50 +29,33 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         ChessPiece pawn = board.getPiece(pawnPosition);
         ChessGame.TeamColor pawnColor = pawn.getTeamColor();
 
-        ArrayList<ChessPosition> possiblePositions = new ArrayList<ChessPosition>();
-
         if (pawnColor == ChessGame.TeamColor.WHITE) {
 
             ChessPosition upOne = new ChessPosition(y + 1, x);
             if (ChessBoard.inBounds(upOne) && board.isEmpty(upOne)) {
 
-                validMoves.add(new ChessMove(pawnPosition, upOne, null));
-                if (pawnPosition.getRow() == 2) {
+                validMoves.addAll(getMoves(8, pawnPosition, upOne));
+
+                if (y == 2) {
                     ChessPosition upTwo = new ChessPosition(y + 2, x);
                     if (ChessBoard.inBounds(upTwo) && board.isEmpty(upTwo)) {
-                        validMoves.add(new ChessMove(pawnPosition, upTwo, null));
+                        validMoves.addAll(getMoves(8, pawnPosition, upTwo));
                     }
                 }
 
             }
 
             ChessPosition upRight = new ChessPosition(y + 1, x + 1);
-            if (ChessBoard.inBounds(upRight)) {
-
-                if (!board.isEmpty(upRight)) {
-
-                    ChessPosition landingPos = new ChessPosition(y + 2,x + 2);
-                    if (ChessBoard.inBounds(landingPos)) {
-
-                        if (board.isEmpty(landingPos)) {
-                            validMoves.add(new ChessMove(pawnPosition, landingPos, null));
-                        }
-                    }
+            if (ChessBoard.inBounds(upRight) && !board.isEmpty(upRight)) {
+                if (board.getPiece(upRight).getTeamColor() == ChessGame.TeamColor.BLACK) {
+                    validMoves.addAll(getMoves(8, pawnPosition, upRight));
                 }
             }
 
             ChessPosition upLeft = new ChessPosition(y + 1, x - 1);
-            if (ChessBoard.inBounds(upLeft)) {
-
-                if (!board.isEmpty(upLeft)) {
-
-                    ChessPosition landingPos = new ChessPosition(y + 2,x - 2);
-                    if (ChessBoard.inBounds(landingPos)) {
-
-                        if (board.isEmpty(landingPos)) {
-                            validMoves.add(new ChessMove(pawnPosition, landingPos, null));
-                        }
-                    }
+            if (ChessBoard.inBounds(upLeft) && !board.isEmpty(upLeft)) {
+                if (board.getPiece(upLeft).getTeamColor() == ChessGame.TeamColor.BLACK) {
+                    validMoves.addAll(getMoves(8, pawnPosition, upLeft));
                 }
             }
 
@@ -77,48 +64,78 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
             ChessPosition downOne = new ChessPosition(y - 1, x);
             if (ChessBoard.inBounds(downOne) && board.isEmpty(downOne)) {
 
-                validMoves.add(new ChessMove(pawnPosition, downOne, null));
-                if (pawnPosition.getRow() == 2) {
+                validMoves.addAll(getMoves(1, pawnPosition, downOne));
+
+                if (y == 7) {
                     ChessPosition downTwo = new ChessPosition(y - 2, x);
                     if (ChessBoard.inBounds(downTwo) && board.isEmpty(downTwo)) {
-                        validMoves.add(new ChessMove(pawnPosition, downTwo, null));
+                        validMoves.addAll(getMoves(1, pawnPosition, downTwo));
                     }
                 }
-
             }
 
             ChessPosition downRight = new ChessPosition(y - 1, x + 1);
-            if (ChessBoard.inBounds(downRight)) {
-
-                if (!board.isEmpty(downRight)) {
-
-                    ChessPosition landingPos = new ChessPosition(y - 2,x + 2);
-                    if (ChessBoard.inBounds(landingPos)) {
-
-                        if (board.isEmpty(landingPos)) {
-                            validMoves.add(new ChessMove(pawnPosition, landingPos, null));
-                        }
-                    }
+            if (ChessBoard.inBounds(downRight) && !board.isEmpty(downRight)) {
+                if (board.getPiece(downRight).getTeamColor() == ChessGame.TeamColor.WHITE) {
+                    validMoves.addAll(getMoves(1, pawnPosition, downRight));
                 }
             }
 
             ChessPosition downLeft = new ChessPosition(y - 1, x - 1);
-            if (ChessBoard.inBounds(downLeft)) {
-
-                if (!board.isEmpty(downLeft)) {
-
-                    ChessPosition landingPos = new ChessPosition(y - 2,x - 2);
-                    if (ChessBoard.inBounds(landingPos)) {
-
-                        if (board.isEmpty(landingPos)) {
-                            validMoves.add(new ChessMove(pawnPosition, landingPos, null));
-                        }
-                    }
+            if (ChessBoard.inBounds(downLeft) && !board.isEmpty(downLeft)) {
+                if (board.getPiece(downLeft).getTeamColor() == ChessGame.TeamColor.WHITE) {
+                    validMoves.addAll(getMoves(1, pawnPosition, downLeft));
                 }
             }
-
         }
 
+/// ////////////////////////////////////////////////////////////////////////////////////////////
+//            ChessPosition downOne = new ChessPosition(y - 1, x);
+//            if (ChessBoard.inBounds(downOne) && board.isEmpty(downOne)) {
+//
+//                validMoves.addAll(getMoves(1, pawnPosition, downOne));
+//
+//                if (y == 2) {
+//                    ChessPosition downTwo = new ChessPosition(y - 2, x);
+//                    if (ChessBoard.inBounds(downTwo) && board.isEmpty(downTwo)) {
+//                        validMoves.addAll(getMoves(1, pawnPosition, downTwo));
+//                    }
+//                }
+//
+//            }
+//
+//            ChessPosition downRight = new ChessPosition(y - 1, x + 1);
+//            if (ChessBoard.inBounds(downRight)) {
+//
+//                if (!board.isEmpty(downRight)) {
+//
+//                    ChessPosition landingPos = new ChessPosition(y - 2,x + 2);
+//                    if (ChessBoard.inBounds(landingPos)) {
+//
+//                        if (board.isEmpty(landingPos)) {
+//                            validMoves.addAll(getMoves(1, pawnPosition,landingPos));
+//                        }
+//                    }
+//                }
+//            }
+//
+//            ChessPosition downLeft = new ChessPosition(y - 1, x - 1);
+//            if (ChessBoard.inBounds(downLeft)) {
+//
+//                if (!board.isEmpty(downLeft)) {
+//
+//                    ChessPosition landingPos = new ChessPosition(y - 2,x - 2);
+//                    if (ChessBoard.inBounds(landingPos)) {
+//
+//                        if (board.isEmpty(landingPos)) {
+//                            validMoves.addAll(getMoves(1, pawnPosition,landingPos));
+//                        }
+//                    }
+//                }
+//            }
+//        }
+
+/// ////////////////////////////////////////////////////////////////////////////////////////////
 //        if (pawnColor == ChessGame.TeamColor.WHITE) {
 //
 //            possiblePositions.add(new ChessPosition(y + 1, x));
