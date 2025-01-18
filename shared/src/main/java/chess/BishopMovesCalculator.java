@@ -6,7 +6,7 @@ import java.util.Collection;
 public class BishopMovesCalculator implements PieceMovesCalculator {
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition bishopPosition) {
-        ArrayList<ChessMove> validMoves = new ArrayList<ChessMove>();
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
         ChessPiece bishop = board.getPiece(bishopPosition);
         ChessGame.TeamColor bishopColor = bishop.getTeamColor();
 
