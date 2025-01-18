@@ -86,7 +86,7 @@ public class ChessPiece {
 
         switch (pieceAtPosition.getPieceType()) {
             case BISHOP -> calculator = new BishopMovesCalculator();
-
+            case KING -> calculator = new KingMovesCalculator();
         }
 
         return calculator.pieceMoves(board, myPosition);
