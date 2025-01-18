@@ -7,123 +7,31 @@ public class QueenMovesCalculator implements PieceMovesCalculator {
 
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition queenPosition) {
-        ArrayList<ChessMove> validMoves = new ArrayList<ChessMove>();
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
         ChessGame.TeamColor queenColor = board.getPiece(queenPosition).getTeamColor();
 
-//        Up
-        ChessPosition evalPos = new ChessPosition(queenPosition.getRow() + 1, queenPosition.getColumn());
-        while (ChessBoard.inBounds(evalPos)) {
-            if (board.isEmpty(evalPos)) {
-                validMoves.add(new ChessMove(queenPosition, evalPos, null));
-                evalPos = new ChessPosition(evalPos.getRow() + 1, evalPos.getColumn());
-            } else if (board.getPiece(evalPos).getTeamColor() != queenColor) {
-                validMoves.add(new ChessMove(queenPosition, evalPos, null));
-                evalPos = new ChessPosition(evalPos.getRow() + 1, evalPos.getColumn());
-                break;
-            } else {
-                break;
-            }
-        }
+        validMoves.addAll(getDirectionMoves(queenPosition, queenColor, 1, 0, board));
+        validMoves.addAll(getDirectionMoves(queenPosition, queenColor, 1, 1, board));
+        validMoves.addAll(getDirectionMoves(queenPosition, queenColor, 0, 1, board));
+        validMoves.addAll(getDirectionMoves(queenPosition, queenColor, -1, 1, board));
+        validMoves.addAll(getDirectionMoves(queenPosition, queenColor, -1, 0, board));
+        validMoves.addAll(getDirectionMoves(queenPosition, queenColor, -1, -1, board));
+        validMoves.addAll(getDirectionMoves(queenPosition, queenColor, 0, -1, board));
+        validMoves.addAll(getDirectionMoves(queenPosition, queenColor, 1, -1, board));
 
-//        UpRight
-        evalPos = new ChessPosition(queenPosition.getRow() + 1, queenPosition.getColumn() + 1);
-        while (ChessBoard.inBounds(evalPos)) {
-            if (board.isEmpty(evalPos)) {
-                validMoves.add(new ChessMove(queenPosition, evalPos, null));
-                evalPos = new ChessPosition(evalPos.getRow() + 1, evalPos.getColumn() + 1);
-            } else if (board.getPiece(evalPos).getTeamColor() != queenColor) {
-                validMoves.add(new ChessMove(queenPosition, evalPos, null));
-                evalPos = new ChessPosition(evalPos.getRow() + 1, evalPos.getColumn() + 1);
-                break;
-            } else {
-                break;
-            }
-        }
+        return validMoves;
+    }
 
-//        Right
-        evalPos = new ChessPosition(queenPosition.getRow(), queenPosition.getColumn() + 1);
-        while (ChessBoard.inBounds(evalPos)) {
-            if (board.isEmpty(evalPos)) {
-                validMoves.add(new ChessMove(queenPosition, evalPos, null));
-                evalPos = new ChessPosition(evalPos.getRow(), evalPos.getColumn() + 1);
-            } else if (board.getPiece(evalPos).getTeamColor() != queenColor) {
-                validMoves.add(new ChessMove(queenPosition, evalPos, null));
-                evalPos = new ChessPosition(evalPos.getRow(), evalPos.getColumn() + 1);
-                break;
-            } else {
-                break;
-            }
-        }
+    public Collection<ChessMove> getDirectionMoves(ChessPosition queenPosition, ChessGame.TeamColor queenColor, int yIncrement, int xIncrement, ChessBoard board) {
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
 
-//        DownRight
-        evalPos = new ChessPosition(queenPosition.getRow() - 1, queenPosition.getColumn() + 1);
+        ChessPosition evalPos = new ChessPosition(queenPosition.getRow() + yIncrement, queenPosition.getColumn() + xIncrement);
         while (ChessBoard.inBounds(evalPos)) {
             if (board.isEmpty(evalPos)) {
                 validMoves.add(new ChessMove(queenPosition, evalPos, null));
-                evalPos = new ChessPosition(evalPos.getRow() - 1, evalPos.getColumn() + 1);
+                evalPos = new ChessPosition(evalPos.getRow() + yIncrement, evalPos.getColumn() + xIncrement);
             } else if (board.getPiece(evalPos).getTeamColor() != queenColor) {
                 validMoves.add(new ChessMove(queenPosition, evalPos, null));
-                evalPos = new ChessPosition(evalPos.getRow() - 1, evalPos.getColumn() + 1);
-                break;
-            } else {
-                break;
-            }
-        }
-
-//        Down
-        evalPos = new ChessPosition(queenPosition.getRow() - 1, queenPosition.getColumn());
-        while (ChessBoard.inBounds(evalPos)) {
-            if (board.isEmpty(evalPos)) {
-                validMoves.add(new ChessMove(queenPosition, evalPos, null));
-                evalPos = new ChessPosition(evalPos.getRow() - 1, evalPos.getColumn());
-            } else if (board.getPiece(evalPos).getTeamColor() != queenColor) {
-                validMoves.add(new ChessMove(queenPosition, evalPos, null));
-                evalPos = new ChessPosition(evalPos.getRow() - 1, evalPos.getColumn());
-                break;
-            } else {
-                break;
-            }
-        }
-
-//        DownLeft
-        evalPos = new ChessPosition(queenPosition.getRow() - 1, queenPosition.getColumn() - 1);
-        while (ChessBoard.inBounds(evalPos)) {
-            if (board.isEmpty(evalPos)) {
-                validMoves.add(new ChessMove(queenPosition, evalPos, null));
-                evalPos = new ChessPosition(evalPos.getRow() - 1, evalPos.getColumn() - 1);
-            } else if (board.getPiece(evalPos).getTeamColor() != queenColor) {
-                validMoves.add(new ChessMove(queenPosition, evalPos, null));
-                evalPos = new ChessPosition(evalPos.getRow() - 1, evalPos.getColumn() - 1);
-                break;
-            } else {
-                break;
-            }
-        }
-
-//        Left
-        evalPos = new ChessPosition(queenPosition.getRow(), queenPosition.getColumn() - 1);
-        while (ChessBoard.inBounds(evalPos)) {
-            if (board.isEmpty(evalPos)) {
-                validMoves.add(new ChessMove(queenPosition, evalPos, null));
-                evalPos = new ChessPosition(evalPos.getRow(), evalPos.getColumn() - 1);
-            } else if (board.getPiece(evalPos).getTeamColor() != queenColor) {
-                validMoves.add(new ChessMove(queenPosition, evalPos, null));
-                evalPos = new ChessPosition(evalPos.getRow(), evalPos.getColumn() - 1);
-                break;
-            } else {
-                break;
-            }
-        }
-
-//        UpLeft
-        evalPos = new ChessPosition(queenPosition.getRow() + 1, queenPosition.getColumn() - 1);
-        while (ChessBoard.inBounds(evalPos)) {
-            if (board.isEmpty(evalPos)) {
-                validMoves.add(new ChessMove(queenPosition, evalPos, null));
-                evalPos = new ChessPosition(evalPos.getRow() + 1, evalPos.getColumn() - 1);
-            } else if (board.getPiece(evalPos).getTeamColor() != queenColor) {
-                validMoves.add(new ChessMove(queenPosition, evalPos, null));
-                evalPos = new ChessPosition(evalPos.getRow() + 1, evalPos.getColumn() - 1);
                 break;
             } else {
                 break;
@@ -132,4 +40,5 @@ public class QueenMovesCalculator implements PieceMovesCalculator {
 
         return validMoves;
     }
+
 }
