@@ -88,6 +88,7 @@ public class ChessPiece {
             case BISHOP -> calculator = new BishopMovesCalculator();
             case KING -> calculator = new KingMovesCalculator();
             case QUEEN -> calculator = new QueenMovesCalculator();
+            case ROOK -> calculator = new RookMovesCalculator();
         }
 
         return calculator.pieceMoves(board, myPosition);
