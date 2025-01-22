@@ -3,7 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class PawnMovesCalculator implements PieceMovesCalculator {
+public class PawnMovesCalculator extends PieceMovesCalculator {
 
     ArrayList<ChessMove> getMoves(int lastRow, ChessPosition pawnPosition, ChessPosition position) {
         ArrayList<ChessMove> validMoves = new ArrayList<ChessMove>();

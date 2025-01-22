@@ -3,7 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class KingMovesCalculator implements PieceMovesCalculator {
+public class KingMovesCalculator extends PieceMovesCalculator {
 
     public Collection<ChessMove> pieceMoves(ChessBoard chessBoard, ChessPosition kingPosition) {
         var x = kingPosition.getColumn();

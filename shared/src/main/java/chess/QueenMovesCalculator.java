@@ -3,7 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class QueenMovesCalculator implements PieceMovesCalculator {
+public class QueenMovesCalculator extends PieceMovesCalculator {
 
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition queenPosition) {
@@ -22,23 +22,6 @@ public class QueenMovesCalculator implements PieceMovesCalculator {
         return validMoves;
     }
 
-    public Collection<ChessMove> getDirectionMoves(ChessPosition queenPosition, ChessGame.TeamColor queenColor, int yIncrement, int xIncrement, ChessBoard board) {
-        ArrayList<ChessMove> validQueenMoves = new ArrayList<>();
 
-        ChessPosition evalPos = new ChessPosition(queenPosition.getRow() + yIncrement, queenPosition.getColumn() + xIncrement);
-        while (ChessBoard.inBounds(evalPos)) {
-            if (board.isEmpty(evalPos)) {
-                validQueenMoves.add(new ChessMove(queenPosition, evalPos, null));
-                evalPos = new ChessPosition(evalPos.getRow() + yIncrement, evalPos.getColumn() + xIncrement);
-            } else if (board.getPiece(evalPos).getTeamColor() != queenColor) {
-                validQueenMoves.add(new ChessMove(queenPosition, evalPos, null));
-                break;
-            } else {
-                break;
-            }
-        }
-
-        return validQueenMoves;
-    }
 
 }

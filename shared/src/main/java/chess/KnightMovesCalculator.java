@@ -3,7 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class KnightMovesCalculator implements PieceMovesCalculator {
+public class KnightMovesCalculator extends PieceMovesCalculator {
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition knightPosition) {
         ArrayList<ChessMove> validMoves = new ArrayList<ChessMove>();
