@@ -27,4 +27,22 @@ public abstract class PieceMovesCalculator {
 
         return validMoves;
     }
+
+    public Collection<ChessMove> getKMoves(ChessPosition startPosition, ChessPosition[] evalPositions, ChessBoard board, ChessGame.TeamColor pieceColor) {
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
+
+        for (ChessPosition evalPos: evalPositions) {
+            if (ChessBoard.inBounds(evalPos)) {
+                if (board.getPiece(evalPos) == null) {
+                    validMoves.add(new ChessMove(startPosition, evalPos, null));
+                } else if (board.getPiece(evalPos).getTeamColor() != pieceColor) {
+                    validMoves.add(new ChessMove(startPosition, evalPos, null));
+                }
+            }
+        }
+
+
+        return validMoves;
+    }
+
 }

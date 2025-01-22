@@ -5,7 +5,7 @@ import java.util.Collection;
 
 public class PawnMovesCalculator extends PieceMovesCalculator {
 
-    ArrayList<ChessMove> getMoves(int lastRow, ChessPosition pawnPosition, ChessPosition position) {
+    ArrayList<ChessMove> getPMoves(int lastRow, ChessPosition pawnPosition, ChessPosition position) {
         ArrayList<ChessMove> validMoves = new ArrayList<ChessMove>();
 
         if (position.getRow() == lastRow) {
@@ -27,12 +27,12 @@ public class PawnMovesCalculator extends PieceMovesCalculator {
         ChessPosition moveOne = new ChessPosition(y + yIncrement, x);
         if (ChessBoard.inBounds(moveOne) && board.isEmpty(moveOne)) {
 
-            validMoves.addAll(getMoves(lastRow, pawnPosition, moveOne));
+            validMoves.addAll(getPMoves(lastRow, pawnPosition, moveOne));
 
             if (y == firstRow) {
                 ChessPosition moveTwo = new ChessPosition(moveOne.getRow() + yIncrement, x);
                 if (ChessBoard.inBounds(moveTwo) && board.isEmpty(moveTwo)) {
-                    validMoves.addAll(getMoves(lastRow, pawnPosition, moveTwo));
+                    validMoves.addAll(getPMoves(lastRow, pawnPosition, moveTwo));
                 }
             }
 
@@ -41,14 +41,14 @@ public class PawnMovesCalculator extends PieceMovesCalculator {
         ChessPosition upRight = new ChessPosition(y + yIncrement, x + 1);
         if (ChessBoard.inBounds(upRight) && !board.isEmpty(upRight)) {
             if (board.getPiece(upRight).getTeamColor() == opposingTeamColor) {
-                validMoves.addAll(getMoves(lastRow, pawnPosition, upRight));
+                validMoves.addAll(getPMoves(lastRow, pawnPosition, upRight));
             }
         }
 
         ChessPosition upLeft = new ChessPosition(y + yIncrement, x - 1);
         if (ChessBoard.inBounds(upLeft) && !board.isEmpty(upLeft)) {
             if (board.getPiece(upLeft).getTeamColor() == opposingTeamColor) {
-                validMoves.addAll(getMoves(lastRow, pawnPosition, upLeft));
+                validMoves.addAll(getPMoves(lastRow, pawnPosition, upLeft));
             }
         }
 

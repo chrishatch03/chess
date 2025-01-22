@@ -5,41 +5,24 @@ import java.util.Collection;
 
 public class KingMovesCalculator extends PieceMovesCalculator {
 
-    public Collection<ChessMove> pieceMoves(ChessBoard chessBoard, ChessPosition kingPosition) {
-        var x = kingPosition.getColumn();
-        var y = kingPosition.getRow();
-        ChessPiece king = chessBoard.getPiece(kingPosition);
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
+        int row = position.getRow();
+        int col = position.getColumn();
+        ChessGame.TeamColor kingColor = board.getPiece(position).getTeamColor();
 
-        ChessPosition[] possiblePositions = {
-                new ChessPosition(y + 1, x), //             Top
-                new ChessPosition(y + 1, x + 1), //     TopRight
-                new ChessPosition(y, x + 1), //              Right
-                new ChessPosition(y - 1, x + 1), //     BottomRight
-                new ChessPosition(y - 1, x), //             Bottom
-                new ChessPosition(y - 1, x - 1), //     BottomLeft
-                new ChessPosition(y, x - 1), //              Left
-                new ChessPosition(y + 1, x - 1) //      TopLeft
+        ChessPosition[] kingPositions = {
+                new ChessPosition(row + 1, col),
+                new ChessPosition(row + 1, col + 1),
+                new ChessPosition(row, col + 1),
+                new ChessPosition(row - 1, col + 1),
+                new ChessPosition(row - 1, col),
+                new ChessPosition(row - 1, col - 1),
+                new ChessPosition(row, col - 1),
+                new ChessPosition(row + 1, col - 1),
         };
 
-        ArrayList<ChessMove> validMoves = new ArrayList<ChessMove>();
-
-        for (ChessPosition position: possiblePositions) {
-            if (ChessBoard.inBounds(position)) {
-                if (chessBoard.isEmpty(position)) {
-                    validMoves.add(new ChessMove(kingPosition, position, null));
-                } else {
-
-//                    Check that the existingPiece's team color is not the same as the king
-//                    If not, add the move since it's valid
-                    ChessPiece existingPiece = chessBoard.getPiece(position);
-                    if (existingPiece.getTeamColor() == king.getTeamColor()) {
-                        continue;
-                    } else {
-                        validMoves.add(new ChessMove(kingPosition, position, null));
-                    }
-                }
-            }
-        }
+        validMoves.addAll(getKMoves(position, kingPositions, board, kingColor));
 
         return validMoves;
     }
