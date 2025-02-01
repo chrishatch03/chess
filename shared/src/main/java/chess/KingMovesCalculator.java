@@ -7,9 +7,9 @@ public class KingMovesCalculator extends PieceMovesCalculator {
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
+        ChessGame.TeamColor kingColor = board.getPiece(position).getTeamColor();
         int row = position.getRow();
         int col = position.getColumn();
-        ChessGame.TeamColor kingColor = board.getPiece(position).getTeamColor();
 
         ChessPosition[] kingPositions = {
                 new ChessPosition(row + 1, col),
@@ -22,8 +22,9 @@ public class KingMovesCalculator extends PieceMovesCalculator {
                 new ChessPosition(row + 1, col - 1),
         };
 
-        validMoves.addAll(getKMoves(position, kingPositions, board, kingColor));
+        getKMoves(board, position, kingPositions, kingColor, validMoves);
 
         return validMoves;
     }
+
 }

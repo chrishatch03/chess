@@ -5,15 +5,14 @@ import java.util.Collection;
 
 public class BishopMovesCalculator extends PieceMovesCalculator {
 
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition bishopPosition) {
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
-        ChessPiece bishop = board.getPiece(bishopPosition);
-        ChessGame.TeamColor bishopColor = bishop.getTeamColor();
+        ChessGame.TeamColor bishopColor = board.getPiece(position).getTeamColor();
 
-        validMoves.addAll(getDirectionMoves(bishopPosition, bishopColor, 1, 1, board));
-        validMoves.addAll(getDirectionMoves(bishopPosition, bishopColor, -1, 1, board));
-        validMoves.addAll(getDirectionMoves(bishopPosition, bishopColor, -1, -1, board));
-        validMoves.addAll(getDirectionMoves(bishopPosition, bishopColor, 1, -1, board));
+        getDMoves(board, position, 1, 1, bishopColor, validMoves);
+        getDMoves(board, position, -1, 1, bishopColor, validMoves);
+        getDMoves(board, position, -1, -1, bishopColor, validMoves);
+        getDMoves(board, position, 1, -1, bishopColor, validMoves);
 
         return validMoves;
     }

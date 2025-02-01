@@ -4,45 +4,41 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public abstract class PieceMovesCalculator {
+
     public abstract Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position);
 
-    public Collection<ChessMove> getDirectionMoves(ChessPosition position, ChessGame.TeamColor teamColor, int yIncrement,
-                                                   int xIncrement, ChessBoard board) {
-        ArrayList<ChessMove> validMoves = new ArrayList<>();
+    void getDMoves(ChessBoard board, ChessPosition startPosition, int yInc, int xInc, ChessGame.TeamColor piececolor, ArrayList<ChessMove> validMoves) {
+        int row = startPosition.getRow();
+        int col = startPosition.getColumn();
 
-        ChessPosition evalPosition = new ChessPosition(position.getRow() + yIncrement,
-                position.getColumn() + xIncrement);
-        while (ChessBoard.inBounds(evalPosition)) {
-            if (board.getPiece(evalPosition) != null) {
-                if (board.getPiece(evalPosition).getTeamColor() != teamColor) {
-                    validMoves.add(new ChessMove(position, evalPosition, null));
-                    break;
-                }
+        ChessPosition evalPos = new ChessPosition(row + yInc, col + xInc);
+        while (ChessBoard.inBounds(evalPos)) {
+            ChessPiece evalPiece = board.getPiece(evalPos);
+            if (evalPiece == null) {
+                validMoves.add(new ChessMove(startPosition, evalPos, null));
+                evalPos = new ChessPosition(evalPos.getRow() + yInc, evalPos.getColumn() + xInc);
+            } else if (evalPiece.getTeamColor() != piececolor) {
+                validMoves.add(new ChessMove(startPosition, evalPos, null));
+                break;
+            } else {
                 break;
             }
-            validMoves.add(new ChessMove(position, evalPosition, null));
-            evalPosition = new ChessPosition(evalPosition.getRow() + yIncrement,
-                    evalPosition.getColumn() + xIncrement);
         }
-
-        return validMoves;
     }
 
-    public Collection<ChessMove> getKMoves(ChessPosition startPosition, ChessPosition[] evalPositions, ChessBoard board, ChessGame.TeamColor pieceColor) {
-        ArrayList<ChessMove> validMoves = new ArrayList<>();
+    void getKMoves(ChessBoard board, ChessPosition startPosition, ChessPosition[] evalPositions, ChessGame.TeamColor piececolor, ArrayList<ChessMove> validMoves) {
 
         for (ChessPosition evalPos: evalPositions) {
             if (ChessBoard.inBounds(evalPos)) {
-                if (board.getPiece(evalPos) == null) {
+                ChessPiece evalPiece = board.getPiece(evalPos);
+                if (evalPiece == null) {
                     validMoves.add(new ChessMove(startPosition, evalPos, null));
-                } else if (board.getPiece(evalPos).getTeamColor() != pieceColor) {
+                } else if (evalPiece.getTeamColor() != piececolor) {
                     validMoves.add(new ChessMove(startPosition, evalPos, null));
                 }
             }
         }
-
-
-        return validMoves;
     }
+
 
 }

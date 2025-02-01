@@ -1,8 +1,7 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Objects;
 
 /**
@@ -12,12 +11,13 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessPiece {
-    private final ChessGame.TeamColor teamColor;
-    private final PieceType pieceType;
 
-    public ChessPiece(ChessGame.TeamColor teamColor, PieceType type) {
-        this.teamColor = teamColor;
-        this.pieceType = type;
+    ChessGame.TeamColor pieceColor;
+    ChessPiece.PieceType type;
+
+    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.pieceColor = pieceColor;
+        this.type = type;
     }
 
     /**
@@ -36,41 +36,14 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        return this.teamColor;
-    }
-
-    /***
-     * Returns a string representation
-     *
-     * @return String
-     */
-    @Override
-    public String toString() {
-        return "ChessPiece{" +
-                "teamColor=" + teamColor +
-                ", pieceType=" + pieceType +
-                '}';
+        return pieceColor;
     }
 
     /**
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        return this.pieceType;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        ChessPiece that = (ChessPiece) o;
-        return teamColor == that.teamColor && pieceType == that.pieceType;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(teamColor, pieceType);
+        return type;
     }
 
     /**
@@ -82,18 +55,39 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         PieceMovesCalculator calculator = null;
-        ChessPiece pieceAtPosition = board.getPiece(myPosition);
+        ChessPiece.PieceType pieceType = board.getPiece(myPosition).getPieceType();
 
-        switch (pieceAtPosition.getPieceType()) {
-            case BISHOP -> calculator = new BishopMovesCalculator();
-            case KING -> calculator = new KingMovesCalculator();
+        switch (pieceType) {
             case QUEEN -> calculator = new QueenMovesCalculator();
+            case BISHOP -> calculator = new BishopMovesCalculator();
             case ROOK -> calculator = new RookMovesCalculator();
+            case KING -> calculator = new KingMovesCalculator();
             case KNIGHT -> calculator = new KnightMovesCalculator();
             case PAWN -> calculator = new PawnMovesCalculator();
         }
 
         return calculator.pieceMoves(board, myPosition);
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "pieceColor=" + pieceColor +
+                ", type=" + type +
+                '}';
     }
 }

@@ -5,23 +5,19 @@ import java.util.Collection;
 
 public class QueenMovesCalculator extends PieceMovesCalculator {
 
-    @Override
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition queenPosition) {
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
-        ChessGame.TeamColor queenColor = board.getPiece(queenPosition).getTeamColor();
+        ChessGame.TeamColor queenColor = board.getPiece(position).getTeamColor();
 
-        validMoves.addAll(getDirectionMoves(queenPosition, queenColor, 1, 0, board));
-        validMoves.addAll(getDirectionMoves(queenPosition, queenColor, 1, 1, board));
-        validMoves.addAll(getDirectionMoves(queenPosition, queenColor, 0, 1, board));
-        validMoves.addAll(getDirectionMoves(queenPosition, queenColor, -1, 1, board));
-        validMoves.addAll(getDirectionMoves(queenPosition, queenColor, -1, 0, board));
-        validMoves.addAll(getDirectionMoves(queenPosition, queenColor, -1, -1, board));
-        validMoves.addAll(getDirectionMoves(queenPosition, queenColor, 0, -1, board));
-        validMoves.addAll(getDirectionMoves(queenPosition, queenColor, 1, -1, board));
+        getDMoves(board, position, 1, 0, queenColor, validMoves);
+        getDMoves(board, position, 1, 1, queenColor, validMoves);
+        getDMoves(board, position, 0, 1, queenColor, validMoves);
+        getDMoves(board, position, -1, 1, queenColor, validMoves);
+        getDMoves(board, position, -1, 0, queenColor, validMoves);
+        getDMoves(board, position, -1, -1, queenColor, validMoves);
+        getDMoves(board, position, 0, -1, queenColor, validMoves);
+        getDMoves(board, position, 1, -1, queenColor, validMoves);
 
         return validMoves;
     }
-
-
-
 }
