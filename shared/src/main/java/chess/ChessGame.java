@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.ArrayList;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -49,14 +50,21 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+        Collection<ChessMove> confirmedMoves = new ArrayList<>();
         ChessPiece specifiedPiece = gameBoard.getPiece(startPosition);
         if (specifiedPiece != null) {
             Collection<ChessMove> validMoves = specifiedPiece.pieceMoves(gameBoard, startPosition);
 
+            ChessBoard saveBoard = gameBoard.clone();
             for (ChessMove move: validMoves) {
-//                ChessBoard tempBoard = gameBoard.deepCopy();
+                try {
+                    makeMove(move);
+
+                } catch (InvalidMoveException e) {
+
+                }
             }
-            return validMoves;
+            return confirmedMoves;
         } else {
             return null;
         }
@@ -69,7 +77,17 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        ChessPiece movePiece = gameBoard.getPiece(move.startPosition);
+        if (movePiece != null) {
+            gameBoard.squares[move.startPosition.getRow()][move.startPosition.getColumn()] = null;
+            if (move.promotionPiece == null) {
+                gameBoard.squares[move.endPosition.getRow()][move.endPosition.getColumn()] = movePiece;
+            } else {
+                gameBoard.squares[move.endPosition.getRow()][move.endPosition.getColumn()] = new ChessPiece(movePiece.getTeamColor(), move.promotionPiece);
+            }
+        } else {
+            throw new InvalidMoveException();
+        }
     }
 
     /**
