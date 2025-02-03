@@ -52,6 +52,8 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         Collection<ChessMove> confirmedMoves = new ArrayList<>();
         ChessPiece specifiedPiece = gameBoard.getPiece(startPosition);
+        ChessGame.TeamColor specifiedPieceColor = specifiedPiece.getTeamColor();
+
         if (specifiedPiece != null) {
             Collection<ChessMove> validMoves = specifiedPiece.pieceMoves(gameBoard, startPosition);
 
@@ -59,15 +61,56 @@ public class ChessGame {
             for (ChessMove move: validMoves) {
                 try {
                     makeMove(move);
-
+                    confirmedMoves.add(move);
                 } catch (InvalidMoveException e) {
-
+//                    the move threw an InvalidMoveException which means the piece is somehow null... even though it shouldn't be possible because of the check on line 4 of this function
+                    return null;
+                } finally {
+                    gameBoard = saveBoard;
                 }
             }
             return confirmedMoves;
         } else {
             return null;
         }
+    }
+
+    /**
+     * Checks each square in the path to make sure you're not jumping anything
+     *
+     * @param move chess move to perform
+     */
+    public boolean isPathClear(ChessMove move) {
+        int startY = move.startPosition.getRow();
+        int startX = move.startPosition.getColumn();
+        int endY = move.endPosition.getRow();
+        int endX = move.endPosition.getColumn();
+        int yInc;
+        int xInc;
+
+        if (startY < endY) {
+            yInc = +1;
+        } else if (startY > endY) {
+            yInc = -1;
+        } else {
+            yInc = 0;
+        }
+
+        if (startX < endX) {
+            xInc = +1;
+        } else if (startX > endX) {
+            xInc = -1;
+        } else {
+            xInc = 0;
+        }
+
+        for (int row = startY, col = startX; row != endY || col != endX; row += yInc, col += xInc) {
+            if (gameBoard.getPiece(new ChessPosition(row, col)) != null) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -78,12 +121,43 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece movePiece = gameBoard.getPiece(move.startPosition);
+        ChessPiece takePiece = gameBoard.getPiece(move.endPosition);
+
         if (movePiece != null) {
-            gameBoard.squares[move.startPosition.getRow()][move.startPosition.getColumn()] = null;
+            ChessGame.TeamColor movePieceColor = movePiece.getTeamColor();
+//            Can't move if not your turn
+            if (movePieceColor != teamTurn) {
+                throw new InvalidMoveException();
+            }
+//            cannot take your own piece
+            if (takePiece != null) {
+                ChessGame.TeamColor takePieceColor = movePiece.getTeamColor();
+                if (takePieceColor == movePieceColor) {
+                    throw new InvalidMoveException();
+                }
+            }
+
+            gameBoard.addPiece(move.startPosition, null);
             if (move.promotionPiece == null) {
-                gameBoard.squares[move.endPosition.getRow()][move.endPosition.getColumn()] = movePiece;
+                gameBoard.addPiece(move.endPosition, movePiece);
             } else {
-                gameBoard.squares[move.endPosition.getRow()][move.endPosition.getColumn()] = new ChessPiece(movePiece.getTeamColor(), move.promotionPiece);
+                gameBoard.addPiece(move.endPosition, new ChessPiece(movePiece.getTeamColor(), move.promotionPiece));
+            }
+//            cannot move if in check after move
+            if (isInCheck(movePieceColor)) {
+                throw new InvalidMoveException();
+            }
+//              if QUEEN, ROOK, BISHOP, OR PAWN
+            if (movePiece.getPieceType() == ChessPiece.PieceType.QUEEN || movePiece.getPieceType() == ChessPiece.PieceType.ROOK || movePiece.getPieceType() == ChessPiece.PieceType.BISHOP || movePiece.getPieceType() == ChessPiece.PieceType.PAWN) {
+                if (isPathClear(move) == false) {
+                    throw new InvalidMoveException();
+                }
+            }
+
+            if (teamTurn == ChessGame.TeamColor.WHITE) {
+                teamTurn = ChessGame.TeamColor.BLACK;
+            } else {
+                teamTurn = ChessGame.TeamColor.WHITE;
             }
         } else {
             throw new InvalidMoveException();
