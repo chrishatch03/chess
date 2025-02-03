@@ -75,43 +75,43 @@ public class ChessGame {
         }
     }
 
-    /**
-     * Checks each square in the path to make sure you're not jumping anything
-     *
-     * @param move chess move to perform
-     */
-    public boolean isPathClear(ChessMove move) {
-        int startY = move.startPosition.getRow();
-        int startX = move.startPosition.getColumn();
-        int endY = move.endPosition.getRow();
-        int endX = move.endPosition.getColumn();
-        int yInc;
-        int xInc;
-
-        if (startY < endY) {
-            yInc = +1;
-        } else if (startY > endY) {
-            yInc = -1;
-        } else {
-            yInc = 0;
-        }
-
-        if (startX < endX) {
-            xInc = +1;
-        } else if (startX > endX) {
-            xInc = -1;
-        } else {
-            xInc = 0;
-        }
-
-        for (int row = startY, col = startX; row != endY || col != endX; row += yInc, col += xInc) {
-            if (gameBoard.getPiece(new ChessPosition(row, col)) != null) {
-                return false;
-            }
-        }
-
-        return true;
-    }
+//    /**
+//     * Checks each square in the path to make sure you're not jumping anything
+//     *
+//     * @param move chess move to perform
+//     */
+//    public boolean isPathClear(ChessMove move) {
+//        int startY = move.startPosition.getRow();
+//        int startX = move.startPosition.getColumn();
+//        int endY = move.endPosition.getRow();
+//        int endX = move.endPosition.getColumn();
+//        int yInc;
+//        int xInc;
+//
+//        if (startY < endY) {
+//            yInc = +1;
+//        } else if (startY > endY) {
+//            yInc = -1;
+//        } else {
+//            yInc = 0;
+//        }
+//
+//        if (startX < endX) {
+//            xInc = +1;
+//        } else if (startX > endX) {
+//            xInc = -1;
+//        } else {
+//            xInc = 0;
+//        }
+//
+//        for (int row = startY, col = startX; row != endY || col != endX; row += yInc, col += xInc) {
+//            if (gameBoard.getPiece(new ChessPosition(row, col)) != null) {
+//                return false;
+//            }
+//        }
+//
+//        return true;
+//    }
 
     /**
      * Makes a move in a chess game
@@ -120,56 +120,62 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        ChessPiece movePiece = gameBoard.getPiece(move.startPosition);
-        ChessPiece.PieceType movePieceType = movePiece.getPieceType();
-        ChessPiece takePiece = gameBoard.getPiece(move.endPosition);
+        ChessBoard startBoard = gameBoard.clone();
 
-        if (movePiece != null) {
+        try {
+
+            ChessPiece movePiece = startBoard.getPiece(move.startPosition);
+            ChessPiece takePiece = startBoard.getPiece(move.endPosition);
+
+            if (movePiece == null) { throw new InvalidMoveException(); }
+            ChessPiece.PieceType movePieceType = movePiece.getPieceType();
             ChessGame.TeamColor movePieceColor = movePiece.getTeamColor();
-//            Can't move if not your turn
+    //            Can't move if not your turn
             if (movePieceColor != teamTurn) {
                 throw new InvalidMoveException();
             }
-//            cannot take your own piece
+    //            cannot take your own piece
             if (takePiece != null) {
-                ChessGame.TeamColor takePieceColor = movePiece.getTeamColor();
+                ChessGame.TeamColor takePieceColor = takePiece.getTeamColor();
                 if (takePieceColor == movePieceColor) {
                     throw new InvalidMoveException();
                 }
             }
+    //            cannot move if rules not followed.
+            PieceRulesValidator rulesValidator = null;
+            switch (movePieceType) {
+                case ChessPiece.PieceType.KING -> rulesValidator = new KingRulesValidator();
+                case ChessPiece.PieceType.QUEEN -> rulesValidator = new QueenRulesValidator();
+                case ChessPiece.PieceType.ROOK -> rulesValidator = new RookRulesValidator();
+                case ChessPiece.PieceType.BISHOP -> rulesValidator = new BishopRulesValidator();
+                case ChessPiece.PieceType.PAWN -> rulesValidator = new PawnRulesValidator();
+                case ChessPiece.PieceType.KNIGHT -> rulesValidator = new KnightRulesValidator();
+            }
 
+            if (!rulesValidator.isValidMove(startBoard, move)) {
+                throw new InvalidMoveException();
+            }
+
+//            attempt move
             gameBoard.addPiece(move.startPosition, null);
             if (move.promotionPiece == null) {
                 gameBoard.addPiece(move.endPosition, movePiece);
             } else {
-                gameBoard.addPiece(move.endPosition, new ChessPiece(movePiece.getTeamColor(), move.promotionPiece));
+                gameBoard.addPiece(move.endPosition, new ChessPiece(movePieceColor, move.promotionPiece));
             }
-//            cannot move if in check after move
+
+    //            cannot move if in check after move
             if (isInCheck(movePieceColor)) {
                 throw new InvalidMoveException();
             }
-//              if QUEEN, ROOK, BISHOP, OR PAWN
-            if (movePiece.getPieceType() == ChessPiece.PieceType.QUEEN || movePiece.getPieceType() == ChessPiece.PieceType.ROOK || movePiece.getPieceType() == ChessPiece.PieceType.BISHOP || movePiece.getPieceType() == ChessPiece.PieceType.PAWN) {
-                if (isPathClear(move) == false) {
-                    throw new InvalidMoveException();
-                }
-            }
-            PieceRulesValidator rulesValidator = null;
-            switch (movePieceType) {
-                case ChessPiece.PieceType.KING -> new KingRulesValidator();
-            }
-            if (!rulesValidator.isValidMove(gameBoard, move)) {
-                throw new InvalidMoveException();
-            }
 
-            if (teamTurn == ChessGame.TeamColor.WHITE) {
-                teamTurn = ChessGame.TeamColor.BLACK;
-            } else {
-                teamTurn = ChessGame.TeamColor.WHITE;
-            }
-        } else {
+            teamTurn = (teamTurn == ChessGame.TeamColor.WHITE) ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+        } catch (InvalidMoveException e) {
+//            reset board if failed
+            gameBoard = startBoard;
             throw new InvalidMoveException();
         }
+
     }
 
     /**

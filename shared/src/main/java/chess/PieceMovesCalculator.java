@@ -7,7 +7,7 @@ public abstract class PieceMovesCalculator {
 
     public abstract Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position);
 
-    void getDMoves(ChessBoard board, ChessPosition startPosition, int yInc, int xInc, ChessGame.TeamColor piececolor, ArrayList<ChessMove> validMoves) {
+    public static void getPathMoves(ChessBoard board, ChessPosition startPosition, int yInc, int xInc, ChessGame.TeamColor piececolor, ArrayList<ChessMove> validMoves) {
         int row = startPosition.getRow();
         int col = startPosition.getColumn();
 

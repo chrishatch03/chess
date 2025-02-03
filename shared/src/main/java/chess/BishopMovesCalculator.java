@@ -9,10 +9,10 @@ public class BishopMovesCalculator extends PieceMovesCalculator {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
         ChessGame.TeamColor bishopColor = board.getPiece(position).getTeamColor();
 
-        getDMoves(board, position, 1, 1, bishopColor, validMoves);
-        getDMoves(board, position, -1, 1, bishopColor, validMoves);
-        getDMoves(board, position, -1, -1, bishopColor, validMoves);
-        getDMoves(board, position, 1, -1, bishopColor, validMoves);
+        getPathMoves(board, position, 1, 1, bishopColor, validMoves);
+        getPathMoves(board, position, -1, 1, bishopColor, validMoves);
+        getPathMoves(board, position, -1, -1, bishopColor, validMoves);
+        getPathMoves(board, position, 1, -1, bishopColor, validMoves);
 
         return validMoves;
     }

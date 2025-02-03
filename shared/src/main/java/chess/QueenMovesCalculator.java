@@ -9,14 +9,14 @@ public class QueenMovesCalculator extends PieceMovesCalculator {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
         ChessGame.TeamColor queenColor = board.getPiece(position).getTeamColor();
 
-        getDMoves(board, position, 1, 0, queenColor, validMoves);
-        getDMoves(board, position, 1, 1, queenColor, validMoves);
-        getDMoves(board, position, 0, 1, queenColor, validMoves);
-        getDMoves(board, position, -1, 1, queenColor, validMoves);
-        getDMoves(board, position, -1, 0, queenColor, validMoves);
-        getDMoves(board, position, -1, -1, queenColor, validMoves);
-        getDMoves(board, position, 0, -1, queenColor, validMoves);
-        getDMoves(board, position, 1, -1, queenColor, validMoves);
+        getPathMoves(board, position, 1, 0, queenColor, validMoves);
+        getPathMoves(board, position, 1, 1, queenColor, validMoves);
+        getPathMoves(board, position, 0, 1, queenColor, validMoves);
+        getPathMoves(board, position, -1, 1, queenColor, validMoves);
+        getPathMoves(board, position, -1, 0, queenColor, validMoves);
+        getPathMoves(board, position, -1, -1, queenColor, validMoves);
+        getPathMoves(board, position, 0, -1, queenColor, validMoves);
+        getPathMoves(board, position, 1, -1, queenColor, validMoves);
 
         return validMoves;
     }
