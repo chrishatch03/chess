@@ -121,6 +121,7 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece movePiece = gameBoard.getPiece(move.startPosition);
+        ChessPiece.PieceType movePieceType = movePiece.getPieceType();
         ChessPiece takePiece = gameBoard.getPiece(move.endPosition);
 
         if (movePiece != null) {
@@ -152,6 +153,13 @@ public class ChessGame {
                 if (isPathClear(move) == false) {
                     throw new InvalidMoveException();
                 }
+            }
+            PieceRulesValidator rulesValidator = null;
+            switch (movePieceType) {
+                case ChessPiece.PieceType.KING -> new KingRulesValidator();
+            }
+            if (!rulesValidator.isValidMove(gameBoard, move)) {
+                throw new InvalidMoveException();
             }
 
             if (teamTurn == ChessGame.TeamColor.WHITE) {
