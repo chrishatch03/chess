@@ -18,6 +18,24 @@ public abstract class PieceRulesValidator {
         return true;
     }
 
+    public int[] getDirection(ChessMove move) {
+        int yChange = 0;
+        if (move.startPosition.getRow() > move.endPosition.getRow()) {
+            yChange = -1;
+        } else if (move.startPosition.getRow() < move.endPosition.getRow()) {
+            yChange = 1;
+        }
+
+        int xChange = 0;
+        if (move.startPosition.getColumn() > move.endPosition.getColumn()) {
+            xChange = -1;
+        } else if (move.startPosition.getColumn() < move.endPosition.getColumn()) {
+            xChange = 1;
+        }
+
+        return new int[] {yChange, xChange};
+    }
+
     public boolean isTooFar(ChessMove move, int yLimitUp, int yLimitDown, int xLimitUp, int xLimitDown) {
         int startY = move.startPosition.getRow();
         int startX = move.startPosition.getColumn();

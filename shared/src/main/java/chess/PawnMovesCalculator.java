@@ -18,7 +18,8 @@ public class PawnMovesCalculator extends PieceMovesCalculator {
         return validMoves;
     }
 
-    void evalPositions(ChessBoard board, ChessPosition position, int yInc, int startRow, int promotionRow, ChessGame.TeamColor pawnColor, ArrayList<ChessMove> validMoves) {
+    void evalPositions(ChessBoard board, ChessPosition position, int yInc, int startRow, int promotionRow,
+                       ChessGame.TeamColor pawnColor, ArrayList<ChessMove> validMoves) {
         int row = position.getRow();
         int col = position.getColumn();
 

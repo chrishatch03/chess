@@ -7,7 +7,8 @@ public abstract class PieceMovesCalculator {
 
     public abstract Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position);
 
-    public static void getPathMoves(ChessBoard board, ChessPosition startPosition, int yInc, int xInc, ChessGame.TeamColor piececolor, ArrayList<ChessMove> validMoves) {
+    public static void getPathMoves(ChessBoard board, ChessPosition startPosition, int yInc, int xInc,
+                                    ChessGame.TeamColor piececolor, ArrayList<ChessMove> validMoves) {
         int row = startPosition.getRow();
         int col = startPosition.getColumn();
 
@@ -26,7 +27,8 @@ public abstract class PieceMovesCalculator {
         }
     }
 
-    void getKMoves(ChessBoard board, ChessPosition startPosition, ChessPosition[] evalPositions, ChessGame.TeamColor piececolor, ArrayList<ChessMove> validMoves) {
+    void getKMoves(ChessBoard board, ChessPosition startPosition, ChessPosition[] evalPositions,
+                   ChessGame.TeamColor piececolor, ArrayList<ChessMove> validMoves) {
 
         for (ChessPosition evalPos: evalPositions) {
             if (ChessBoard.inBounds(evalPos)) {
