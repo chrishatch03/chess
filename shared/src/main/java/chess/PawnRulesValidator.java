@@ -18,10 +18,8 @@ public class PawnRulesValidator extends PieceRulesValidator {
         }
 
         int xChange = move.startPosition.getColumn() - move.endPosition.getColumn();
-//        if the pawn ever tries to move more than 1 to the side, return false
         if (Math.abs(xChange) > 1) { return false; }
 
-//        if pawn tries to move diagonal, ensure there is a capture piece
         if (Math.abs(xChange) > 0) {
             ChessPiece capturePiece = board.getPiece(move.endPosition);
             if (capturePiece == null) { return false; }

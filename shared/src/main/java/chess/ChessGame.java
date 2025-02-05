@@ -43,8 +43,6 @@ public class ChessGame {
     }
 
     ChessPosition getKingPosition(ChessGame.TeamColor teamColor) {
-        ChessPosition kingPosition = null;
-
         int row = 1;
         for (ChessPiece[] boardRow: gameBoard.squares) {
             int col = 1;
@@ -71,7 +69,6 @@ public class ChessGame {
         Collection<ChessMove> confirmedMoves = new ArrayList<>();
         ChessPiece specifiedPiece = gameBoard.getPiece(startPosition);
 
-//        if no piece at startPosition, return null
         if (specifiedPiece == null) {
             return null;
         }
@@ -89,7 +86,7 @@ public class ChessGame {
             try {
 
                 makeMove(move);
-                if (!isInCheck(specifiedPieceColor)) { confirmedMoves.add(move); };
+                if (!isInCheck(specifiedPieceColor)) { confirmedMoves.add(move); }
 
             } catch (InvalidMoveException e) {
 //                    swallow the move threw an InvalidMoveException
@@ -119,33 +116,22 @@ public class ChessGame {
             if (movePiece == null) { throw new InvalidMoveException(); }
             ChessPiece.PieceType movePieceType = movePiece.getPieceType();
             ChessGame.TeamColor movePieceColor = movePiece.getTeamColor();
-    //            Can't move if not your turn
+
             if (movePieceColor != teamTurn) {
                 throw new InvalidMoveException();
             }
-    //            cannot take your own piece
             if (takePiece != null) {
                 ChessGame.TeamColor takePieceColor = takePiece.getTeamColor();
                 if (takePieceColor == movePieceColor) {
                     throw new InvalidMoveException();
                 }
             }
-    //            cannot move if rules not followed.
-            PieceRulesValidator rulesValidator = null;
-            switch (movePieceType) {
-                case ChessPiece.PieceType.KING -> rulesValidator = new KingRulesValidator();
-                case ChessPiece.PieceType.QUEEN -> rulesValidator = new QueenRulesValidator();
-                case ChessPiece.PieceType.ROOK -> rulesValidator = new RookRulesValidator();
-                case ChessPiece.PieceType.BISHOP -> rulesValidator = new BishopRulesValidator();
-                case ChessPiece.PieceType.PAWN -> rulesValidator = new PawnRulesValidator();
-                case ChessPiece.PieceType.KNIGHT -> rulesValidator = new KnightRulesValidator();
-            }
+            PieceRulesValidator rulesValidator = getPieceRulesValidator(movePieceType);
 
             if (!rulesValidator.isValidMove(gameBoard, move)) {
                 throw new InvalidMoveException();
             }
 
-//            attempt move
             gameBoard.addPiece(move.startPosition, null);
             if (move.promotionPiece == null) {
                 gameBoard.addPiece(move.endPosition, movePiece);
@@ -153,19 +139,30 @@ public class ChessGame {
                 gameBoard.addPiece(move.endPosition, new ChessPiece(movePieceColor, move.promotionPiece));
             }
 
-    //            cannot move if in check after move
             if (isInCheck(movePieceColor)) {
                 throw new InvalidMoveException();
             }
 
             teamTurn = (teamTurn == ChessGame.TeamColor.WHITE) ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
         } catch (InvalidMoveException e) {
-//            reset board if failed
             teamTurn = currTeamTurn;
             gameBoard = boardCopy;
             throw new InvalidMoveException();
         }
 
+    }
+
+    private static PieceRulesValidator getPieceRulesValidator(ChessPiece.PieceType movePieceType) {
+        PieceRulesValidator rulesValidator = null;
+        switch (movePieceType) {
+            case ChessPiece.PieceType.KING -> rulesValidator = new KingRulesValidator();
+            case ChessPiece.PieceType.QUEEN -> rulesValidator = new QueenRulesValidator();
+            case ChessPiece.PieceType.ROOK -> rulesValidator = new RookRulesValidator();
+            case ChessPiece.PieceType.BISHOP -> rulesValidator = new BishopRulesValidator();
+            case ChessPiece.PieceType.PAWN -> rulesValidator = new PawnRulesValidator();
+            case ChessPiece.PieceType.KNIGHT -> rulesValidator = new KnightRulesValidator();
+        }
+        return rulesValidator;
     }
 
     /**
@@ -203,12 +200,15 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        // First, check if the king is in check
+
         if (!isInCheck(teamColor)) {
-            return false; // If the king is not in check, it's not checkmate
+            return false;
         }
 
-        // If the king is in check, check if any piece can block or capture the attacking piece
+        return isStuck(teamColor);
+    }
+
+    private boolean isStuck(TeamColor teamColor) {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 ChessPiece currPiece = gameBoard.getPiece(new ChessPosition(row + 1, col + 1));
@@ -217,14 +217,14 @@ public class ChessGame {
                     ChessPosition position = new ChessPosition(row + 1, col + 1);
                     Collection<ChessMove> validMoves = validMoves(position);
 
-                    if(validMoves.size() > 0) {
+                    if(!validMoves.isEmpty()) {
                         return false;
                     }
                 }
             }
         }
 
-        return true; // If no valid move resolves the check, it's checkmate
+        return true;
     }
 
     /**
@@ -235,28 +235,12 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        // First, check if the king is in check
+
         if (isInCheck(teamColor)) {
-            return false; // If the king is not in check, it's not checkmate
+            return false;
         }
 
-        // If the king is NOT in check, check if any piece can block or capture the attacking piece
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                ChessPiece currPiece = gameBoard.getPiece(new ChessPosition(row + 1, col + 1));
-
-                if (currPiece != null && currPiece.getTeamColor() == teamColor) {
-                    ChessPosition position = new ChessPosition(row + 1, col + 1);
-                    Collection<ChessMove> validMoves = validMoves(position);
-
-                    if(validMoves.size() > 0) {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        return true; // If no valid move resolves the check, it's checkmate
+        return isStuck(teamColor);
     }
 
     /**

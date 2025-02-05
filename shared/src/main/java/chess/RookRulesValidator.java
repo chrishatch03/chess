@@ -3,23 +3,19 @@ package chess;
 public class RookRulesValidator extends PieceRulesValidator {
     @Override
     public boolean isValidMove(ChessBoard board, ChessMove move) {
-        int startY = move.startPosition.getRow();
-        int startX = move.startPosition.getColumn();
-        int endY = move.endPosition.getRow();
-        int endX = move.endPosition.getColumn();
         boolean pathClear = false;
 
         int yChange = 0;
-        if (startY > endY) {
+        if (move.startPosition.getRow() > move.endPosition.getRow()) {
             yChange = -1;
-        } else if (startY < endY) {
+        } else if (move.startPosition.getRow() < move.endPosition.getRow()) {
             yChange = +1;
         }
 
         int xChange = 0;
-        if (startX > endX) {
+        if (move.startPosition.getColumn() > move.endPosition.getColumn()) {
             xChange = -1;
-        } else if (startX < endX) {
+        } else if (move.startPosition.getColumn() < move.endPosition.getColumn()) {
             xChange = +1;
         }
 

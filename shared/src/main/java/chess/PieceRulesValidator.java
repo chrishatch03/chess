@@ -1,44 +1,7 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 public abstract class PieceRulesValidator {
     public abstract boolean isValidMove(ChessBoard board, ChessMove move);
-
-//    public boolean isPathClear(ChessBoard board, ChessMove move) {
-//
-//        int startY = move.startPosition.getRow();
-//        int startX = move.startPosition.getColumn();
-//        int endY = move.endPosition.getRow();
-//        int endX = move.endPosition.getColumn();
-//        int yInc;
-//        int xInc;
-//
-//        if (startY < endY) {
-//            yInc = +1;
-//        } else if (startY > endY) {
-//            yInc = -1;
-//        } else {
-//            yInc = 0;
-//        }
-//
-//        if (startX < endX) {
-//            xInc = +1;
-//        } else if (startX > endX) {
-//            xInc = -1;
-//        } else {
-//            xInc = 0;
-//        }
-//
-//        for (int row = startY, col = startX; row != endY || col != endX; row += yInc, col += xInc) {
-//            if (board.getPiece(new ChessPosition(row, col)) != null) {
-//                return false;
-//            }
-//        }
-//
-//        return true;
-//    }
 
     public boolean isPathClear(ChessBoard board, ChessMove move, int yInc, int xInc) {
         int row = move.startPosition.getRow();
@@ -62,7 +25,6 @@ public abstract class PieceRulesValidator {
         int endX = move.endPosition.getColumn();
         boolean tooFar = false;
 
-//        validate y movement
         if (startY > endY) {
             if ( Math.abs(startY - endY) > yLimitDown) {
                 tooFar = true;
@@ -73,7 +35,6 @@ public abstract class PieceRulesValidator {
             }
         }
 
-//        validate x movement
         if (startX > endX) {
             if ( Math.abs(startX - endX) > xLimitDown) {
                 tooFar = true;
