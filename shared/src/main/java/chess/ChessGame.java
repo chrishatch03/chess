@@ -1,6 +1,6 @@
 package chess;
 
-import chess.pieceRules.*;
+import chess.piece.rules.*;
 
 import java.util.Collection;
 import java.util.ArrayList;
