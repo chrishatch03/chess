@@ -177,15 +177,15 @@ public class ChessGame {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 ChessPiece currPiece = gameBoard.squares[row][col];
+                if (currPiece == null || currPiece.getTeamColor() == teamColor) {
+                    continue;
+                }
+                ChessPosition position = new ChessPosition(row + 1, col + 1);
+                Collection<ChessMove> validMoves = currPiece.pieceMoves(gameBoard, position);
 
-                if (currPiece != null && currPiece.getTeamColor() != teamColor) {
-                    ChessPosition position = new ChessPosition(row + 1, col + 1);
-                    Collection<ChessMove> validMoves = currPiece.pieceMoves(gameBoard, position);
-
-                    for (ChessMove move: validMoves) {
-                        if (kingPosition.equals(move.endPosition)) {
-                            return true;
-                        }
+                for (ChessMove move: validMoves) {
+                    if (kingPosition.equals(move.endPosition)) {
+                        return true;
                     }
                 }
             }

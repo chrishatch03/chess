@@ -24,19 +24,21 @@ public class PawnMovesCalculator extends PieceMovesCalculator {
         int col = position.getColumn();
 
         ChessPosition moveOne = new ChessPosition(row + yInc, col);
-        if (ChessBoard.inBounds(moveOne)) {
-            ChessPiece moveOnePiece = board.getPiece(moveOne);
-            if (moveOnePiece == null) {
-                getMoves(position, moveOne, promotionRow, validMoves);
+        if (!ChessBoard.inBounds(moveOne)) {
+            return;
+        }
 
-                if (row == startRow) {
-                    ChessPosition moveTwo = new ChessPosition(moveOne.getRow() + yInc, col);
-                    if (ChessBoard.inBounds(moveTwo)) {
-                        ChessPiece moveTwoPiece = board.getPiece(moveTwo);
-                        if (moveTwoPiece == null) {
-                            getMoves(position, moveTwo, promotionRow, validMoves);
+        ChessPiece moveOnePiece = board.getPiece(moveOne);
+        if (moveOnePiece == null) {
+            getMoves(position, moveOne, promotionRow, validMoves);
 
-                        }
+            if (row == startRow) {
+                ChessPosition moveTwo = new ChessPosition(moveOne.getRow() + yInc, col);
+                if (ChessBoard.inBounds(moveTwo)) {
+                    ChessPiece moveTwoPiece = board.getPiece(moveTwo);
+                    if (moveTwoPiece == null) {
+                        getMoves(position, moveTwo, promotionRow, validMoves);
+
                     }
                 }
             }
