@@ -1,4 +1,4 @@
-package chess.PawnRules;
+package chess.pieceRules;
 
 import chess.ChessBoard;
 import chess.ChessMove;
