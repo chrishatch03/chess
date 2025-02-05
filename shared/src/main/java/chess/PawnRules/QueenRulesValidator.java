@@ -1,4 +1,7 @@
-package chess;
+package chess.PawnRules;
+
+import chess.ChessBoard;
+import chess.ChessMove;
 
 public class QueenRulesValidator extends PieceRulesValidator {
 

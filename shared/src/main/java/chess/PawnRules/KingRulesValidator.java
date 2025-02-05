@@ -1,4 +1,7 @@
-package chess;
+package chess.PawnRules;
+
+import chess.ChessBoard;
+import chess.ChessMove;
 
 public class KingRulesValidator extends PieceRulesValidator {
     public boolean isValidMove(ChessBoard board, ChessMove move) {

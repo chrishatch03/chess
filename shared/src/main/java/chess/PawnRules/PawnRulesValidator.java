@@ -1,10 +1,15 @@
-package chess;
+package chess.PawnRules;
+
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPiece;
 
 public class PawnRulesValidator extends PieceRulesValidator {
 
     @Override
     public boolean isValidMove(ChessBoard board, ChessMove move) {
-        ChessPiece pawn = board.getPiece(move.startPosition);
+        ChessPiece pawn = board.getPiece(move.getStartPosition());
         if (pawn == null) {
             return false;
         }
@@ -17,11 +22,11 @@ public class PawnRulesValidator extends PieceRulesValidator {
             startRow = 7;
         }
 
-        int xChange = move.startPosition.getColumn() - move.endPosition.getColumn();
+        int xChange = move.getStartPosition().getColumn() - move.getEndPosition().getColumn();
         if (Math.abs(xChange) > 1) { return false; }
 
         if (Math.abs(xChange) > 0) {
-            ChessPiece capturePiece = board.getPiece(move.endPosition);
+            ChessPiece capturePiece = board.getPiece(move.getEndPosition());
             if (capturePiece == null) { return false; }
         }
 
@@ -38,7 +43,7 @@ public class PawnRulesValidator extends PieceRulesValidator {
             xLimitDown = 0;
         }
 
-        int pawnStartY = move.startPosition.getRow();
+        int pawnStartY = move.getStartPosition().getRow();
 
         if (pawnColor == ChessGame.TeamColor.WHITE) {
             if (pawnStartY == startRow) {

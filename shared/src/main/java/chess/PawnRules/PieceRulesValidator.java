@@ -1,14 +1,19 @@
-package chess;
+package chess.PawnRules;
+
+import chess.ChessBoard;
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.ChessPosition;
 
 public abstract class PieceRulesValidator {
     public abstract boolean isValidMove(ChessBoard board, ChessMove move);
 
     public boolean isPathClear(ChessBoard board, ChessMove move, int yInc, int xInc) {
-        int row = move.startPosition.getRow();
-        int col = move.startPosition.getColumn();
+        int row = move.getStartPosition().getRow();
+        int col = move.getStartPosition().getColumn();
 
         ChessPosition evalPos = new ChessPosition(row + yInc, col + xInc);
-        while (ChessBoard.inBounds(evalPos) && !evalPos.equals(move.endPosition)) {
+        while (ChessBoard.inBounds(evalPos) && !evalPos.equals(move.getEndPosition())) {
             ChessPiece evalPiece = board.getPiece(evalPos);
             if (evalPiece != null) {
                 return false;
@@ -20,16 +25,16 @@ public abstract class PieceRulesValidator {
 
     public int[] getDirection(ChessMove move) {
         int yChange = 0;
-        if (move.startPosition.getRow() > move.endPosition.getRow()) {
+        if (move.getStartPosition().getRow() > move.getEndPosition().getRow()) {
             yChange = -1;
-        } else if (move.startPosition.getRow() < move.endPosition.getRow()) {
+        } else if (move.getStartPosition().getRow() < move.getEndPosition().getRow()) {
             yChange = 1;
         }
 
         int xChange = 0;
-        if (move.startPosition.getColumn() > move.endPosition.getColumn()) {
+        if (move.getStartPosition().getColumn() > move.getEndPosition().getColumn()) {
             xChange = -1;
-        } else if (move.startPosition.getColumn() < move.endPosition.getColumn()) {
+        } else if (move.getStartPosition().getColumn() < move.getEndPosition().getColumn()) {
             xChange = 1;
         }
 
@@ -37,10 +42,10 @@ public abstract class PieceRulesValidator {
     }
 
     public boolean isTooFar(ChessMove move, int yLimitUp, int yLimitDown, int xLimitUp, int xLimitDown) {
-        int startY = move.startPosition.getRow();
-        int startX = move.startPosition.getColumn();
-        int endY = move.endPosition.getRow();
-        int endX = move.endPosition.getColumn();
+        int startY = move.getStartPosition().getRow();
+        int startX = move.getStartPosition().getColumn();
+        int endY = move.getEndPosition().getRow();
+        int endX = move.getEndPosition().getColumn();
         boolean tooFar = false;
 
         if (startY > endY) {

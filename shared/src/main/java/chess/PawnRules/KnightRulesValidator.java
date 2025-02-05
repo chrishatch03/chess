@@ -1,9 +1,13 @@
-package chess;
+package chess.PawnRules;
+
+import chess.ChessBoard;
+import chess.ChessMove;
+import chess.ChessPiece;
 
 public class KnightRulesValidator extends PieceRulesValidator {
     @Override
     public boolean isValidMove(ChessBoard board, ChessMove move) {
-        ChessPiece knight = board.getPiece(move.startPosition);
+        ChessPiece knight = board.getPiece(move.getStartPosition());
 
         if (knight == null) { return false; }
 
