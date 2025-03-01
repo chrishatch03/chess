@@ -1,8 +1,19 @@
 package server;
 
+import com.google.gson.Gson;
 import spark.*;
 
+import java.util.Map;
+
 public class Server {
+
+    private final ChessService service;
+    private final WebSocketHandler webSocketHandler;
+
+    public Server(ChessService service) {
+        this.service = service;
+        webSocketHandler = new WebSocketHandler();
+    }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -10,11 +21,127 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
+        Spark.webSocket("/ws", webSocketHandler);
 
-        //This line initializes the server and can be removed once you have a functioning endpoint 
+        Spark.post("/userData", this::addUserData);
+        Spark.post("/authData", this::addAuthData);
+        Spark.post("/gameData", this::addGameData);
+        Spark.get("/userData", this::getUserData);
+        Spark.get("/authData", this::getAuthData);
+        Spark.get("/gameData", this::getGameData);
+        Spark.delete("/userData/:id", this::deleteUserData);
+        Spark.delete("/userData", this::deleteAllUserData);
+        Spark.delete("/authData/:id", this::deleteAuthData);
+        Spark.delete("/authData", this::deleteAllAuthData);
+        Spark.delete("/gameData/:id", this::deleteGameData);
+        Spark.delete("/gameData", this::deleteAllGameData);
+        Spark.exception(ResponseException.class, this::exceptionHandler);
+
+        //This line initializes the server and can be removed once you have a functioning endpoint
         Spark.init();
 
         Spark.awaitInitialization();
+        return Spark.port();
+    }
+
+    private void exceptionHandler(ResponseException ex, Request req, Response res) {
+        res.status(ex.StatusCode());
+        res.body(ex.toJson());
+    }
+
+//    POST REQUESTS
+    private Object addUserData(Request req, Response res) throws ResponseException {
+        var userData = new Gson().fromJson(req.body(), UserData.class);
+        userData = service.addUserData(userData);
+//        webSocketHandler.makeNoise(userData.name(), userData.sound());
+        return new Gson().toJson(userData);
+    }
+    private Object addAuthData(Request req, Response res) throws ResponseException {
+        var authData = new Gson().fromJson(req.body(), AuthData.class);
+        authData = service.addAuthData(authData);
+//        webSocketHandler.makeNoise(authData.name(), authData.sound());
+        return new Gson().toJson(authData);
+    }
+    private Object addGameData(Request req, Response res) throws ResponseException {
+        var gameData = new Gson().fromJson(req.body(), GameData.class);
+        gameData = service.addGameData(gameData);
+//        webSocketHandler.makeNoise(gameData.name(), gameData.sound());
+        return new Gson().toJson(gameData);
+    }
+
+//  GET REQUESTS
+    private Object getUserData(Request req, Response res) throws ResponseException {
+        res.type("application/json");
+        var userData = service.getUserData().toArray();
+        return new Gson().toJson(Map.of("userData", userData));
+    }
+    private Object getAuthData(Request req, Response res) throws ResponseException {
+        res.type("application/json");
+        var authData = service.getAuthData().toArray();
+        return new Gson().toJson(Map.of("authData", authData));
+    }
+    private Object getGameData(Request req, Response res) throws ResponseException {
+        res.type("application/json");
+        var gameData = service.getGameData().toArray();
+        return new Gson().toJson(Map.of("gameData", gameData));
+    }
+
+//  DELETE REQUESTS
+    private Object deleteUserData(Request req, Response res) throws ResponseException {
+        var id = Integer.parseInt(req.params(":id"));
+        var userData = service.getUserData(id);
+        if (userData != null) {
+            service.deleteUserData(id);
+            webSocketHandler.makeNoise(userData.name(), userData.sound());
+            res.status(204);
+        } else {
+            res.status(404);
+        }
+        return "";
+    }
+    private Object deleteAuthData(Request req, Response res) throws ResponseException {
+        var id = Integer.parseInt(req.params(":id"));
+        var authData = service.getAuthData(id);
+        if (authData != null) {
+            service.deleteAuthData(id);
+            webSocketHandler.makeNoise(authData.name(), authData.sound());
+            res.status(204);
+        } else {
+            res.status(404);
+        }
+        return "";
+    }
+    private Object deleteGameData(Request req, Response res) throws ResponseException {
+        var id = Integer.parseInt(req.params(":id"));
+        var gameData = service.getGameData(id);
+        if (gameData != null) {
+            service.deleteGameData(id);
+            webSocketHandler.makeNoise(gameData.name(), gameData.sound());
+            res.status(204);
+        } else {
+            res.status(404);
+        }
+        return "";
+    }
+
+//  DELETE ALL
+    private Object deleteAllUserData(Request req, Response res) throws ResponseException {
+        service.deleteAllUserData();
+        res.status(204);
+        return "";
+    }
+    private Object deleteAllAuthData(Request req, Response res) throws ResponseException {
+        service.deleteAllAuthData();
+        res.status(204);
+        return "";
+    }
+    private Object deleteAllGameData(Request req, Response res) throws ResponseException {
+        service.deleteAllGameData();
+        res.status(204);
+        return "";
+    }
+
+    public int port() {
         return Spark.port();
     }
 
