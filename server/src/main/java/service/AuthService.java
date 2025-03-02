@@ -1,7 +1,6 @@
 package service;
 import dataaccess.DataAccess;
 import model.AuthData;
-import model.AuthDataType;
 import exception.ResponseException;
 import java.util.Collection;
 
@@ -14,7 +13,7 @@ public class AuthService {
     }
 
     public AuthData addAuthData(AuthData authData) throws ResponseException {
-        if (authData.type() == AuthDataType.DOG && authData.name().equals("fleas")) {
+        if ( ) { //need bad condition
             throw new ResponseException(400, "Error: no dogs with fleas");
         }
         return dataAccess.addAuthData(authData);

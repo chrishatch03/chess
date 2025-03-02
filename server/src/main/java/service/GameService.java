@@ -1,7 +1,6 @@
 package service;
 import dataaccess.DataAccess;
 import model.GameData;
-import model.GameDataType;
 import exception.ResponseException;
 import java.util.Collection;
 
@@ -14,7 +13,7 @@ public class GameService {
     }
 
     public GameData addGameData(GameData gameData) throws ResponseException {
-        if (gameData.type() == GameDataType.DOG && gameData.name().equals("fleas")) {
+        if ( ) { //need bad condition
             throw new ResponseException(400, "Error: no dogs with fleas");
         }
         return dataAccess.addGameData(gameData);
