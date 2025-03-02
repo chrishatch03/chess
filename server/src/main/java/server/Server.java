@@ -8,21 +8,19 @@ import model.UserData;
 import service.AuthService;
 import service.GameService;
 import service.UserService;
+import dataaccess.AuthMemoryDAO;
+import dataaccess.UserMemoryDAO;
+import dataaccess.GameMemoryDAO;
 import spark.*;
 import java.util.Map;
 
 public class Server {
 
-    private final UserService userService;
-    private final AuthService authService;
-    private final GameService gameService;
-//    private final WebSocketHandler webSocketHandler;
+    private final UserService userService = new UserService(new UserMemoryDAO());
+    private final AuthService authService = new AuthService(new AuthMemoryDAO());
+    private final GameService gameService = new GameService(new GameMemoryDAO());
 
-    public Server(AuthService authService, UserService userService, GameService gameService) {
-        this.authService = authService;
-        this.userService = userService;
-        this.gameService = gameService;
-//        webSocketHandler = new WebSocketHandler();
+    public Server() {
     }
 
     public int run(int desiredPort) {
@@ -31,7 +29,6 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-//        Spark.webSocket("/ws", webSocketHandler);
 
 //        REGISTER USER
         Spark.post("/user", this::registerUser);
@@ -68,7 +65,12 @@ public class Server {
     private Object registerUser(Request req, Response res) throws ResponseException {
         var userData = new Gson().fromJson(req.body(), UserData.class);
         userData = userService.registerUser(userData);
+        res.status(200);
 //        webSocketHandler.makeNoise(userData.name(), userData.sound());
+//        Success response	[200] { "username":"", "authToken":"" }
+//        Failure response	[400] { "message": "Error: bad request" }
+//        Failure response	[403] { "message": "Error: already taken" }
+//        Failure response	[500] { "message": "Error: (description of error)" }
         return new Gson().toJson(userData);
     }
 
