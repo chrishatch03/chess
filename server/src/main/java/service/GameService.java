@@ -1,37 +1,37 @@
 package service;
-import dataaccess.DataAccess;
+import dataaccess.GameMemoryDAO;
 import model.GameData;
 import exception.ResponseException;
 import java.util.Collection;
 
 public class GameService {
 
-    private final DataAccess dataAccess;
+    private final GameMemoryDAO gameDAO;
 
-    public GameService(DataAccess dataAccess) {
-        this.dataAccess = dataAccess;
+    public GameService(GameMemoryDAO gameDAO) {
+        this.gameDAO = gameDAO;
     }
 
-    public GameData addGameData(GameData gameData) throws ResponseException {
-        if ( ) { //need bad condition
+    public GameData addGameData(String gameName) throws ResponseException {
+        if ( gameDAO.get(gameName) == null ) { //need bad condition
             throw new ResponseException(400, "Error: no dogs with fleas");
         }
-        return dataAccess.addGameData(gameData);
+        return gameDAO.add(gameName);
     }
 
     public Collection<GameData> listAllGameData() throws ResponseException {
-        return dataAccess.listAllGameData();
+        return gameDAO.listAll();
     }
 
-    public GameData getGameData(int id) throws ResponseException {
-        return dataAccess.getGameData(id);
+    public GameData getGameData(String gameName) throws ResponseException {
+        return gameDAO.get(gameName);
     }
 
-    public void deleteGameData(Integer id) throws ResponseException {
-        dataAccess.deleteGameData(id);
+    public void deleteGameData(String gameName) throws ResponseException {
+        gameDAO.delete(gameName);
     }
 
     public void deleteAllGameData() throws ResponseException {
-        dataAccess.deleteAllGameData();
+        gameDAO.deleteAll();
     }
 }

@@ -1,37 +1,37 @@
 package service;
-import dataaccess.DataAccess;
+import dataaccess.AuthMemoryDAO;
 import model.AuthData;
 import exception.ResponseException;
 import java.util.Collection;
 
 public class AuthService {
 
-    private final DataAccess dataAccess;
+    private final AuthMemoryDAO authDAO;
 
-    public AuthService(DataAccess dataAccess) {
-        this.dataAccess = dataAccess;
+    public AuthService(AuthMemoryDAO authDAO) {
+        this.authDAO = authDAO;
     }
 
     public AuthData addAuthData(AuthData authData) throws ResponseException {
-        if ( ) { //need bad condition
+        if ( authDAO.get(authData.username()) == null ) {
             throw new ResponseException(400, "Error: no dogs with fleas");
         }
-        return dataAccess.addAuthData(authData);
+        return authDAO.add(authData);
     }
 
     public Collection<AuthData> listAllAuthData() throws ResponseException {
-        return dataAccess.listAllAuthData();
+        return authDAO.listAll();
     }
 
-    public AuthData getAuthData(int id) throws ResponseException {
-        return dataAccess.getAuthData(id);
+    public AuthData getAuthData(String username) throws ResponseException {
+        return authDAO.get(username);
     }
 
-    public void deleteAuthData(Integer id) throws ResponseException {
-        dataAccess.deleteAuthData(id);
+    public void deleteAuthData(String username) throws ResponseException {
+        authDAO.delete(username);
     }
 
     public void deleteAllAuthData() throws ResponseException {
-        dataAccess.deleteAllAuthData();
+        authDAO.deleteAll();
     }
 }

@@ -14,7 +14,7 @@ public class UserService {
     }
 
     public UserData registerUser(UserData userData) throws ResponseException {
-        if ( userDAO.get(userData.username()) != null) { //need bad condition
+        if ( userDAO.get(userData.username()) != null ) {
             throw new ResponseException(400, "Error: no dogs with fleas");
         }
         return userDAO.add(userData);

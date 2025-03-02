@@ -12,6 +12,14 @@ public record GameData(int gameId, String whiteUsername, String blackUsername, S
         return new GameData(this.gameId, this.whiteUsername, blackUsername, this.gameName, this.game);
     }
 
+    public GameData setGameName(String gameName) {
+        return new GameData(this.gameId, this.whiteUsername, this.blackUsername, gameName, this.game);
+    }
+
+    public GameData setGame(ChessGame game) {
+        return new GameData(this.gameId, this.whiteUsername, this.blackUsername, this.gameName, game);
+    }
+
     public String toString() {
         return new Gson().toJson(this);
     }
