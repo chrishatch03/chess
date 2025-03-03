@@ -1,5 +1,6 @@
 package service;
 import dataaccess.DataAccessException;
+import dataaccess.UserDAO;
 import dataaccess.UserMemoryDAO;
 import model.LoginRequest;
 import model.UserData;
@@ -8,7 +9,7 @@ import java.util.Collection;
 
 public class UserService {
 
-    private final UserMemoryDAO userDAO;
+    private final UserDAO userDAO;
 
     public UserService(UserMemoryDAO userDAO) {
         this.userDAO = userDAO;

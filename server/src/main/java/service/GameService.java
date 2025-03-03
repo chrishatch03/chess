@@ -1,17 +1,17 @@
 package service;
 import chess.ChessGame;
 import dataaccess.DataAccessException;
+import dataaccess.GameDAO;
 import dataaccess.GameMemoryDAO;
 import model.GameData;
 import exception.ResponseException;
 import model.JoinGameRequest;
 import model.UserData;
-
 import java.util.Collection;
 
 public class GameService {
 
-    private final GameMemoryDAO gameDAO;
+    private final GameDAO gameDAO;
 
     public GameService(GameMemoryDAO gameDAO) {
         this.gameDAO = gameDAO;

@@ -4,7 +4,7 @@ import model.AuthData;
 import java.util.Collection;
 import java.util.HashMap;
 
-public class AuthMemoryDAO {
+public class AuthMemoryDAO implements AuthDAO {
     final private HashMap<String, AuthData> authDb = new HashMap<>();
 
     public boolean sessionExists(String username) {

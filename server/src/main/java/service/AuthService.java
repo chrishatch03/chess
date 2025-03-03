@@ -1,4 +1,5 @@
 package service;
+import dataaccess.AuthDAO;
 import dataaccess.AuthMemoryDAO;
 import dataaccess.DataAccessException;
 import model.AuthData;
@@ -8,7 +9,7 @@ import java.util.UUID;
 
 public class AuthService {
 
-    private final AuthMemoryDAO authDAO;
+    private final AuthDAO authDAO;
 
     public AuthService(AuthMemoryDAO authDAO) {
         this.authDAO = authDAO;
