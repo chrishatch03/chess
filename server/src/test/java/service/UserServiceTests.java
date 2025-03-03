@@ -174,10 +174,37 @@ public class UserServiceTests {
 
 
     @Test
-    void testClear() {
+    void testClearPos() {
         try {
             userService.register(new UserData("username", "password", "email@email.com"));
+            userService.register(new UserData("secondUser", "secondPassword", "secondEmail@email.com"));
+            userService.register(new UserData("thirdUser", "thirdPassword", "thirdEmail@email.com"));
+            userService.deleteAll();
+            Collection<UserData> userList = userService.listAll();
+            var expected = new HashSet<>();
 
+            assertEquals(expected, new HashSet<>(userList), "User sets do not match");
+        } catch (ResponseException ex) {
+            Assertions.fail("User registration failed: " + ex.getMessage());
+        }
+        userService.deleteAll();
+        assertTrue(userService.listAll().isEmpty(), "Users Db was not cleared");
+    }
+
+    @Test
+    void testClearNeg() {
+        try {
+            userService.register(new UserData("username", "password", "email@email.com"));
+            userService.register(new UserData("secondUser", "secondPassword", "secondEmail@email.com"));
+            userService.register(new UserData("thirdUser", "thirdPassword", "thirdEmail@email.com"));
+            userService.deleteAll();
+            Collection<UserData> userList = userService.listAll();
+            var expected = new HashSet<>();
+            expected.add(new UserData("username", "password", "email@email.com"));
+            expected.add(new UserData("secondUser", "secondPassword", "secondEmail@email.com"));
+            expected.add(new UserData("thirdUser", "thirdPassword", "thirdEmail@email.com"));
+
+            assertNotEquals(expected, new HashSet<>(userList), "User sets should not match");
         } catch (ResponseException ex) {
             Assertions.fail("User registration failed: " + ex.getMessage());
         }
