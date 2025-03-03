@@ -23,7 +23,7 @@ public class UserServiceTests {
             assertNotNull(registeredUser, "Registered user should not be null");
             assertEquals("username", registeredUser.username(), "Username should match");
         } catch (ResponseException ex) {
-            Assertions.fail("User registration failed: " + ex.getMessage());
+            fail("User registration failed: " + ex.getMessage());
         }
     }
 
@@ -35,6 +35,20 @@ public class UserServiceTests {
             fail("Expected ResponseException for duplicate username");
         } catch (ResponseException ex) {
             assertEquals(403, ex.getStatusCode(), "Should return 403 for duplicate registration");
+        }
+    }
+
+    @Test
+    void testVerifyCredentialsPos() {
+        try {
+            UserData registeredUser = userService.register(new UserData("username", "password", "email@email.com"));
+            UserData userData = userService.verifyCredentials(new LoginRequest("username", "password"));
+            assertNotNull(userData, "User verification should return a non-null user");
+            assertEquals(registeredUser.username(), userData.username(), "usernames should match");
+            assertEquals(registeredUser.password(), userData.password(), "passwords should match");
+            assertEquals(registeredUser.email(), userData.email(), "emails should match");
+        } catch (ResponseException ex) {
+            fail("Login Failed: " + ex.getMessage());
         }
     }
 
