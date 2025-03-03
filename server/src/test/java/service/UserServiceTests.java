@@ -135,6 +135,43 @@ public class UserServiceTests {
         }
     }
 
+    @Test
+    void testDeletePos() {
+        try {
+            userService.register(new UserData("username", "password", "email@email.com"));
+            userService.register(new UserData("secondUser", "secondPassword", "secondEmail@email.com"));
+            userService.register(new UserData("thirdUser", "thirdPassword", "thirdEmail@email.com"));
+            userService.delete("thirdUser");
+            Collection<UserData> userList = userService.listAll();
+            var expected = new HashSet<>();
+            expected.add(new UserData("username", "password", "email@email.com"));
+            expected.add(new UserData("secondUser", "secondPassword", "secondEmail@email.com"));
+
+            assertEquals(expected, new HashSet<>(userList), "User sets do not match");
+        } catch (ResponseException ex) {
+            fail("Delete Failed when should have succeeded: " + ex.getMessage());
+        }
+    }
+
+    @Test
+    void testDeleteNeg() {
+        try {
+            userService.register(new UserData("username", "password", "email@email.com"));
+            userService.register(new UserData("secondUser", "secondPassword", "secondEmail@email.com"));
+            userService.register(new UserData("thirdUser", "thirdPassword", "thirdEmail@email.com"));
+            userService.delete("thirdUser");
+            Collection<UserData> userList = userService.listAll();
+            var expected = new HashSet<>();
+            expected.add(new UserData("username", "password", "email@email.com"));
+            expected.add(new UserData("secondUser", "secondPassword", "secondEmail@email.com"));
+            expected.add(new UserData("thirdUser", "thirdPassword", "thirdEmail@email.com"));
+
+            assertNotEquals(expected, new HashSet<>(userList), "User sets do not match");
+        } catch (ResponseException ex) {
+            fail("Delete succeeded when should have failed: " + ex.getMessage());
+        }
+    }
+
 
     @Test
     void testClear() {
