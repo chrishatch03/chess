@@ -1,4 +1,5 @@
 package dataaccess;
+import model.AuthData;
 import model.UserData;
 import java.util.Collection;
 import java.util.HashMap;
@@ -7,8 +8,10 @@ public class UserMemoryDAO {
 
     final private HashMap<String, UserData> userDb = new HashMap<>();
 
-    public UserData add(UserData userData) {
-        userData = new UserData(userData.username(), userData.password(), userData.email());
+    public UserData add(UserData userData) throws DataAccessException {
+        if (userDb.containsKey(userData.username())) {
+            throw new DataAccessException("Error: already taken");
+        }
         userDb.put(userData.username(), userData);
         return userData;
     }

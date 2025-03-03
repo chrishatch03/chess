@@ -1,7 +1,12 @@
 package service;
+import chess.ChessGame;
+import dataaccess.DataAccessException;
 import dataaccess.GameMemoryDAO;
 import model.GameData;
 import exception.ResponseException;
+import model.JoinGameRequest;
+import model.UserData;
+
 import java.util.Collection;
 
 public class GameService {
@@ -12,26 +17,47 @@ public class GameService {
         this.gameDAO = gameDAO;
     }
 
-    public GameData addGameData(String gameName) throws ResponseException {
-        if ( gameDAO.get(gameName) == null ) { //need bad condition
-            throw new ResponseException(400, "Error: no dogs with fleas");
+    public GameData add(String gameName) throws DataAccessException {
+        for (GameData game: gameDAO.listAll()) {
+            if (game.gameName().equals(gameName)) {
+                throw new DataAccessException("Error: game name already taken");
+            }
         }
         return gameDAO.add(gameName);
     }
 
-    public Collection<GameData> listAllGameData() throws ResponseException {
+    public GameData joinGame(JoinGameRequest joinGameRequest, UserData userData) throws ResponseException {
+        try {
+            GameData gameData = this.get(joinGameRequest.gameId());
+            if (joinGameRequest.teamColor() == ChessGame.TeamColor.WHITE) {
+                gameData.setWhiteUsername(userData.username());
+                gameDAO.update(gameData.gameId(), gameData);
+            }
+        } catch (DataAccessException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+
+        return new GameData(1, "hey", "hiagain", "umm", new ChessGame());
+    }
+
+    public Collection<GameData> listAll() {
         return gameDAO.listAll();
     }
 
-    public GameData getGameData(String gameName) throws ResponseException {
-        return gameDAO.get(gameName);
+    public GameData get(Integer gameId) throws ResponseException {
+        try {
+            GameData gameData = gameDAO.get(gameId);
+            return gameData;
+        } catch (DataAccessException ex) {
+            throw new ResponseException(500, "Error: no value for " + gameId);
+        }
     }
 
-    public void deleteGameData(String gameName) throws ResponseException {
-        gameDAO.delete(gameName);
+    public void delete(Integer gameId) {
+        gameDAO.delete(gameId);
     }
 
-    public void deleteAllGameData() throws ResponseException {
+    public void deleteAll() {
         gameDAO.deleteAll();
     }
 }

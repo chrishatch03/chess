@@ -2,9 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
-import model.AuthData;
-import model.GameData;
-import model.UserData;
+import model.*;
 import service.AuthService;
 import service.GameService;
 import service.UserService;
@@ -20,6 +18,8 @@ public class Server {
     private final AuthService authService = new AuthService(new AuthMemoryDAO());
     private final GameService gameService = new GameService(new GameMemoryDAO());
 
+    private final Gson serializer = new Gson();
+
     public Server() {
     }
 
@@ -31,22 +31,17 @@ public class Server {
         // Register your endpoints and handle exceptions here.
 
 //        REGISTER USER
-        Spark.post("/user", this::registerUser);
+        Spark.post("/user", this::register);
 //        LOGIN
-//        Spark.post("/session", this::login);
-
-//        Spark.post("/authData", this::addAuthData);
-//        Spark.post("/gameData", this::addGameData);
-//        Spark.get("/userData", this::getUserData);
-//        Spark.get("/authData", this::getAuthData);
-//        Spark.get("/gameData", this::getGameData);
-//        Spark.delete("/userData/:id", this::deleteUserData);
-//        Spark.delete("/userData", this::deleteAllUserData);
-//        Spark.delete("/authData/:id", this::deleteAuthData);
-//        Spark.delete("/authData", this::deleteAllAuthData);
-//        Spark.delete("/gameData/:id", this::deleteGameData);
-//        Spark.delete("/gameData", this::deleteAllGameData);
-//        Spark.delete("/db", this::deleteAppData);
+        Spark.post("/session", this::login);
+//        LOGOUT
+        Spark.delete("/session", this::logout);
+//        CREATE GAME
+        Spark.post("/game", this::createGame);
+//        LIST GAMES
+        Spark.get("/game", this::listGames);
+//        JOIN GAME
+        Spark.put("/game", this::joinGame);
         Spark.exception(ResponseException.class, this::exceptionHandler);
 
         //This line initializes the server and can be removed once you have a functioning endpoint
@@ -58,119 +53,93 @@ public class Server {
 
     private void exceptionHandler(ResponseException ex, Request req, Response res) {
         res.status(ex.StatusCode());
+        res.type("application/json");
         res.body(ex.toJson());
     }
 
-//    POST REQUESTS
-    private Object registerUser(Request req, Response res) throws ResponseException {
-        var userData = new Gson().fromJson(req.body(), UserData.class);
-        userData = userService.registerUser(userData);
+    private Object sendResponse(Request req, Response res, Object body) {
         res.status(200);
-//        webSocketHandler.makeNoise(userData.name(), userData.sound());
-//        Success response	[200] { "username":"", "authToken":"" }
-//        Failure response	[400] { "message": "Error: bad request" }
-//        Failure response	[403] { "message": "Error: already taken" }
-//        Failure response	[500] { "message": "Error: (description of error)" }
-        return new Gson().toJson(userData);
+        res.type("application/json");
+        return serializer.toJson(body);
     }
 
-//    private Object login(Request req, Response res) throws ResponseException {
-//        var authCredentials = new Gson().fromJson(req.body(), AuthData.class);
-//        authCredentials = service.login(authCredentials);
-//        return new Gson().toJson(authCredentials);
-//    }
-//    private Object addAuthData(Request req, Response res) throws ResponseException {
-//        var authData = new Gson().fromJson(req.body(), AuthData.class);
-//        authData = service.addAuthData(authData);
-////        webSocketHandler.makeNoise(authData.name(), authData.sound());
-//        return new Gson().toJson(authData);
-//    }
-//    private Object addGameData(Request req, Response res) throws ResponseException {
-//        var gameData = new Gson().fromJson(req.body(), GameData.class);
-//        gameData = service.addGameData(gameData);
-////        webSocketHandler.makeNoise(gameData.name(), gameData.sound());
-//        return new Gson().toJson(gameData);
-//    }
-//
-////  GET REQUESTS
-//    private Object getUserData(Request req, Response res) throws ResponseException {
-//        res.type("application/json");
-//        var userData = service.getUserData().toArray();
-//        return new Gson().toJson(Map.of("userData", userData));
-//    }
-//    private Object getAuthData(Request req, Response res) throws ResponseException {
-//        res.type("application/json");
-//        var authData = service.getAuthData().toArray();
-//        return new Gson().toJson(Map.of("authData", authData));
-//    }
-//    private Object getGameData(Request req, Response res) throws ResponseException {
-//        res.type("application/json");
-//        var gameData = service.getGameData().toArray();
-//        return new Gson().toJson(Map.of("gameData", gameData));
-//    }
-//
-////  DELETE REQUESTS
-//    private Object deleteUserData(Request req, Response res) throws ResponseException {
-//        var id = Integer.parseInt(req.params(":id"));
-//        var userData = service.getUserData(id);
-//        if (userData != null) {
-//            service.deleteUserData(id);
-//            webSocketHandler.makeNoise(userData.name(), userData.sound());
-//            res.status(200);
-//        } else {
-//            res.status(500);
-//        }
-//        return "";
-//    }
-//    private Object deleteAuthData(Request req, Response res) throws ResponseException {
-//        var id = Integer.parseInt(req.params(":id"));
-//        var authData = service.getAuthData(id);
-//        if (authData != null) {
-//            service.deleteAuthData(id);
-//            webSocketHandler.makeNoise(authData.name(), authData.sound());
-//            res.status(200);
-//        } else {
-//            res.status(500);
-//        }
-//        return "";
-//    }
-//    private Object deleteGameData(Request req, Response res) throws ResponseException {
-//        var id = Integer.parseInt(req.params(":id"));
-//        var gameData = service.getGameData(id);
-//        if (gameData != null) {
-//            service.deleteGameData(id);
-//            webSocketHandler.makeNoise(gameData.name(), gameData.sound());
-//            res.status(200);
-//        } else {
-//            res.status(500);
-//        }
-//        return "";
-//    }
-//
-////  DELETE ALL
-//    private Object deleteAllUserData(Request req, Response res) throws ResponseException {
-//        service.deleteAllUserData();
-//        res.status(200);
-//        return "";
-//    }
-//    private Object deleteAllAuthData(Request req, Response res) throws ResponseException {
-//        service.deleteAllAuthData();
-//        res.status(200);
-//        return "";
-//    }
-//    private Object deleteAllGameData(Request req, Response res) throws ResponseException {
-//        service.deleteAllGameData();
-//        res.status(200);
-//        return "";
-//    }
-////    Clear Entire Application
-//    private Object deleteAppData(Request req, Response res) throws ResponseException {
-//        service.deleteAllUserData();
-//        service.deleteAllAuthData();
-//        service.deleteAllGameData();
-//        res.status(200);
-//        return "";
-//    }
+//    POST REQUESTS
+    private Object register(Request req, Response res) throws ResponseException {
+        var userData = serializer.fromJson(req.body(), UserData.class);
+        userData = userService.register(userData);
+        var authData = authService.add(userData.username());
+        return sendResponse(req,res,authData);
+    }
+
+//  LOGIN
+    private Object login(Request req, Response res) throws ResponseException {
+        var authCredentials = serializer.fromJson(req.body(), LoginRequest.class);
+        UserData userData = userService.verifyCredentials(authCredentials);
+        AuthData authData = authService.add(userData.username());
+        return sendResponse(req,res,authData);
+    }
+
+    //  LOGOUT
+    private Object logout(Request req, Response res) throws ResponseException {
+        var authToken = req.headers("Authorization");
+        if (authToken == null || authToken.isEmpty()) {
+            throw new ResponseException(401, "Error: unauthorized");
+        }
+        authService.delete(authToken);
+        return sendResponse(req,res,"{}");
+    }
+
+//    CREATE GAME
+    private Object createGame(Request req, Response res) throws ResponseException {
+        var authToken = req.headers("Authorization");
+        if (authToken == null || authToken.isEmpty()) {
+            throw new ResponseException(401, "Error: unauthorized");
+        }
+        var createGameRequest = serializer.fromJson(req.body(), CreateGameRequest.class);
+        try {
+            GameData gameData = gameService.add(createGameRequest.gameName());
+            return sendResponse(req,res,gameData);
+
+        } catch (Exception ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
+    //    LIST GAMES
+    private Object listGames(Request req, Response res) throws ResponseException {
+        var authToken = req.headers("Authorization");
+        if (authToken == null || authToken.isEmpty()) {
+            throw new ResponseException(401, "Error: unauthorized");
+        }
+        var games = gameService.listAll();
+        return sendResponse(req,res,games);
+    }
+
+
+    //    JOIN GAME
+    private Object joinGame(Request req, Response res) throws ResponseException {
+        var authToken = req.headers("Authorization");
+        if (authToken == null || authToken.isEmpty()) {
+            throw new ResponseException(401, "Error: unauthorized");
+        }
+        var authData = authService.get(authToken);
+        if (authData == null) { throw new ResponseException(401, "Error: unauthorized"); }
+
+        var userData = userService.get(authData.username());
+        if (userData == null) { throw new ResponseException(500, "Error: auth session exists but unable to get user"); }
+
+        var joinGameRequest = serializer.fromJson(req.body(), JoinGameRequest.class);
+        var gameData = gameService.joinGame(joinGameRequest, userData);
+        return sendResponse(req,res,gameData);
+    }
+
+//    Clear Entire Application
+    private Object deleteAppData(Request req, Response res) throws ResponseException {
+        userService.deleteAll();
+        authService.deleteAll();
+        gameService.deleteAll();
+        return sendResponse(req,res,"{}");
+    }
 
     public int port() {
         return Spark.port();

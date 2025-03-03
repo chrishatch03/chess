@@ -7,10 +7,17 @@ import java.util.HashMap;
 public class AuthMemoryDAO {
     final private HashMap<String, AuthData> authDb = new HashMap<>();
 
-    public AuthData add(AuthData authData) {
-        authData = new AuthData(authData.authToken(), authData.username());
+    public boolean sessionExists(String username) {
+        for (AuthData authData: authDb.values()) {
+            if (authData.username().equals(username)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-        authDb.put(authData.username(), authData);
+    public AuthData add(AuthData authData) {
+        authDb.put(authData.authToken(), authData);
         return authData;
     }
 
@@ -19,8 +26,12 @@ public class AuthMemoryDAO {
     }
 
 
-    public AuthData get(String username) {
-        return authDb.get(username);
+    public AuthData get(String authToken) throws DataAccessException {
+        AuthData authData = authDb.get(authToken);
+        if (this.sessionExists(authData.username())) {
+            return authData;
+        }
+        throw new DataAccessException("No session for " + authToken);
     }
 
     public void delete(String username) {
