@@ -20,8 +20,12 @@ public class UserMemoryDAO implements UserDAO {
     }
 
 
-    public UserData get(String username) {
-        return userDb.get(username);
+    public UserData get(String username) throws DataAccessException {
+        if (this.userDb.containsKey(username)) {
+            return userDb.get(username);
+        } else {
+            throw new DataAccessException("Error: " + username + " not found in userDb");
+        }
     }
 
     public void delete(String username) {

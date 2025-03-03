@@ -26,27 +26,35 @@ public class UserService {
     public UserData verifyCredentials(LoginRequest authCredentials) throws ResponseException {
         String reqUsername = authCredentials.username();
         String reqPassword = authCredentials.password();
-        UserData userData = userDAO.get(reqUsername);
-        if (userData.username().equals(reqUsername) && userData.password().equals(reqPassword)) {
-            return userData;
-        } else {
+        try {
+            UserData userData = userDAO.get(reqUsername);
+            if (userData.username().equals(reqUsername) && userData.password().equals(reqPassword)) {
+                return userData;
+            } else {
+                throw new ResponseException(401, "Error: unauthorized");
+            }
+        } catch (DataAccessException ex) {
             throw new ResponseException(401, "Error: unauthorized");
         }
     }
 
-    public Collection<UserData> listAll() throws ResponseException {
+    public Collection<UserData> listAll() {
         return userDAO.listAll();
     }
 
     public UserData get(String username) throws ResponseException {
-        return userDAO.get(username);
+        try {
+            return userDAO.get(username);
+        } catch (DataAccessException ex) {
+            throw new ResponseException(500, "Error: cannot get UserData for " + username);
+        }
     }
 
-    public void delete(String username) throws ResponseException {
+    public void delete(String username) {
         userDAO.delete(username);
     }
 
-    public void deleteAll() throws ResponseException {
+    public void deleteAll() {
         userDAO.deleteAll();
     }
 }
