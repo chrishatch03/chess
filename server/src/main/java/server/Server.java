@@ -10,7 +10,6 @@ import dataaccess.AuthMemoryDAO;
 import dataaccess.UserMemoryDAO;
 import dataaccess.GameMemoryDAO;
 import spark.*;
-import java.util.Map;
 
 public class Server {
 
@@ -27,25 +26,15 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
-
-        // Register your endpoints and handle exceptions here.
-
-//        REGISTER USER
+        Spark.delete("/db", this::clearApp);
         Spark.post("/user", this::register);
-//        LOGIN
         Spark.post("/session", this::login);
-//        LOGOUT
         Spark.delete("/session", this::logout);
-//        CREATE GAME
-        Spark.post("/game", this::createGame);
-//        LIST GAMES
         Spark.get("/game", this::listGames);
-//        JOIN GAME
+        Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
-        Spark.exception(ResponseException.class, this::exceptionHandler);
 
-        //This line initializes the server and can be removed once you have a functioning endpoint
-        Spark.init();
+        Spark.exception(ResponseException.class, this::exceptionHandler);
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -86,7 +75,7 @@ public class Server {
             throw new ResponseException(401, "Error: unauthorized");
         }
         authService.delete(authToken);
-        return sendResponse(req,res,"{}");
+        return sendResponse(req,res,new EmptyResponse());
     }
 
 //    CREATE GAME
@@ -134,15 +123,11 @@ public class Server {
     }
 
 //    Clear Entire Application
-    private Object deleteAppData(Request req, Response res) throws ResponseException {
+    private Object clearApp(Request req, Response res) throws ResponseException {
         userService.deleteAll();
         authService.deleteAll();
         gameService.deleteAll();
-        return sendResponse(req,res,"{}");
-    }
-
-    public int port() {
-        return Spark.port();
+        return sendResponse(req,res,new EmptyResponse());
     }
 
     public void stop() {
