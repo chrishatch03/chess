@@ -41,7 +41,7 @@ public class Server {
     }
 
     private void exceptionHandler(ResponseException ex, Request req, Response res) {
-        res.status(ex.StatusCode());
+        res.status(ex.getStatusCode());
         res.type("application/json");
         res.body(ex.toJson());
     }
@@ -103,7 +103,6 @@ public class Server {
         var games = gameService.listAll();
         return sendResponse(req,res,games);
     }
-
 
     //    JOIN GAME
     private Object joinGame(Request req, Response res) throws ResponseException {
