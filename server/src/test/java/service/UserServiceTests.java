@@ -4,6 +4,12 @@ import dataaccess.UserMemoryDAO;
 import model.LoginRequest;
 import model.UserData;
 import org.junit.jupiter.api.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTests {
@@ -71,6 +77,43 @@ public class UserServiceTests {
             fail("Expected ResponseException with status 401 due to bad password");
         } catch (ResponseException ex) {
             assertEquals(401, ex.getStatusCode(), "Should return 401 unauthorized due to bad password");
+        }
+    }
+
+    @Test
+    void testListAllPos() {
+        try {
+            userService.register(new UserData("username", "password", "email@email.com"));
+            userService.register(new UserData("secondUser", "secondPassword", "secondEmail@email.com"));
+            Collection<UserData> userList = userService.listAll();
+
+            var expected = Set.of(
+                    new UserData("username", "password", "email@email.com"),
+                    new UserData("secondUser", "secondPassword", "secondEmail@email.com")
+            );
+
+            assertEquals(expected, new HashSet<>(userList), "User sets do not match");
+        } catch (ResponseException ex) {
+            fail("ListAll Failed: " + ex.getMessage());
+        }
+    }
+
+    @Test
+    void testListAllNeg() {
+        try {
+            userService.register(new UserData("username", "password", "email@email.com"));
+            userService.register(new UserData("secondUser", "secondPassword", "secondEmail@email.com"));
+            Collection<UserData> userList = userService.listAll();
+
+            var expected = Set.of(
+                    new UserData("username", "password", "email@email.com"),
+                    new UserData("secondUser", "secondPassword", "secondEmail@email.com"),
+                    new UserData("thirdUser", "thirdPassword", "thirdEmail@email.com")
+            );
+
+            assertNotEquals(expected, new HashSet<>(userList), "User sets should not match");
+        } catch (ResponseException ex) {
+            fail("ListAll Failed: " + ex.getMessage());
         }
     }
 
