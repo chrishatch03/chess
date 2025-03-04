@@ -55,6 +55,11 @@ public class Server {
 //    POST REQUESTS
     private Object register(Request req, Response res) throws ResponseException {
         var userData = serializer.fromJson(req.body(), UserData.class);
+        if (userData.username() == null || userData.username().isBlank() ||
+                userData.password() == null || userData.password().isBlank() ||
+                userData.email() == null || userData.email().isBlank()) {
+            throw new ResponseException(400, "Error: bad request");
+        }
         userData = userService.register(userData);
         var authData = authService.add(userData.username());
         return sendResponse(req,res,authData);
@@ -71,26 +76,35 @@ public class Server {
     //  LOGOUT
     private Object logout(Request req, Response res) throws ResponseException {
         var authToken = req.headers("Authorization");
-        if (authToken == null || authToken.isEmpty()) {
+        if (authToken == null || authToken.isBlank()) {
             throw new ResponseException(401, "Error: unauthorized");
         }
-        authService.delete(authToken);
-        return sendResponse(req,res,new EmptyResponse());
+        try {
+            authService.sessionExists(authToken);
+            authService.delete(authToken);
+            return sendResponse(req, res, new EmptyResponse());
+        } catch (ResponseException ex) {
+            throw new ResponseException(401, "Error: unauthorized");
+        }
     }
 
 //    CREATE GAME
     private Object createGame(Request req, Response res) throws ResponseException {
         var authToken = req.headers("Authorization");
-        if (authToken == null || authToken.isEmpty()) {
+        if (authToken == null || authToken.isBlank()) {
             throw new ResponseException(401, "Error: unauthorized");
         }
-        var createGameRequest = serializer.fromJson(req.body(), CreateGameRequest.class);
         try {
+            authService.sessionExists(authToken);
+            var createGameRequest = serializer.fromJson(req.body(), CreateGameRequest.class);
+            String gameName = createGameRequest.gameName();
+            if (gameName == null || gameName.isBlank()) {
+                throw new ResponseException(400, "Error: bad request");
+            }
             GameData gameData = gameService.add(createGameRequest.gameName());
-            return sendResponse(req,res,gameData);
-
+            return sendResponse(req,res,new CreateGameResponse(gameData.gameId()));
         } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
+            throw new ResponseException(401, ex.getMessage());
         }
     }
 
@@ -107,10 +121,10 @@ public class Server {
     //    JOIN GAME
     private Object joinGame(Request req, Response res) throws ResponseException {
         var authToken = req.headers("Authorization");
-        if (authToken == null || authToken.isEmpty()) {
+        if (authToken == null || authToken.isBlank()) {
             throw new ResponseException(401, "Error: unauthorized");
         }
-        var authData = authService.get(authToken);
+        var authData = authService.sessionExists(authToken);
         if (authData == null) { throw new ResponseException(401, "Error: unauthorized"); }
 
         var userData = userService.get(authData.username());

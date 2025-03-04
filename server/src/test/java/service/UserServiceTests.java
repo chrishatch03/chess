@@ -1,13 +1,11 @@
 package service;
+import java.util.Collection;
+import java.util.HashSet;
 import exception.*;
 import dataaccess.UserMemoryDAO;
 import model.LoginRequest;
 import model.UserData;
 import org.junit.jupiter.api.*;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTests {

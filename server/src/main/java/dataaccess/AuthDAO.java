@@ -4,7 +4,7 @@ import java.util.Collection;
 
 public interface AuthDAO {
     boolean sessionExists(String username);
-    AuthData add(AuthData authData);
+    AuthData add(AuthData authData) throws DataAccessException;
     Collection<AuthData> listAll();
     AuthData get(String authToken) throws DataAccessException;
     void delete(String username);

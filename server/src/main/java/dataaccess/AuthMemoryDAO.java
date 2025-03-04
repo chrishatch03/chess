@@ -16,7 +16,10 @@ public class AuthMemoryDAO implements AuthDAO {
         return false;
     }
 
-    public AuthData add(AuthData authData) {
+    public AuthData add(AuthData authData) throws DataAccessException{
+        if (authDb.containsKey(authData.authToken())) {
+            throw new DataAccessException("Session already exists");
+        }
         authDb.put(authData.authToken(), authData);
         return authData;
     }
@@ -27,15 +30,18 @@ public class AuthMemoryDAO implements AuthDAO {
 
 
     public AuthData get(String authToken) throws DataAccessException {
-        AuthData authData = authDb.get(authToken);
-        if (this.sessionExists(authData.username())) {
-            return authData;
+//        AuthData authData = authDb.get(authToken);
+//        if (this.sessionExists(authData.username())) {
+//            return authData;
+//        }
+        if (this.authDb.containsKey(authToken)) {
+            return authDb.get(authToken);
         }
         throw new DataAccessException("No session for " + authToken);
     }
 
-    public void delete(String username) {
-        authDb.remove(username);
+    public void delete(String authToken) {
+        authDb.remove(authToken);
     }
 
     public void deleteAll() {

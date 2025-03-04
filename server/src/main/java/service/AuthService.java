@@ -15,11 +15,18 @@ public class AuthService {
         this.authDAO = authDAO;
     }
 
-    public AuthData add(String username) {
-        return authDAO.add(new AuthData(UUID.randomUUID().toString(), username));
+    public AuthData add(String username) throws ResponseException {
+        try {
+            return authDAO.add(new AuthData(UUID.randomUUID().toString(), username));
+        } catch (DataAccessException ex) {
+            if (ex.getMessage().equals("Session already exists")) {
+                this.add(username);
+            }
+            throw new ResponseException(500, "Error: unable to create session");
+        }
     }
 
-    public Collection<AuthData> listAll() throws ResponseException {
+    public Collection<AuthData> listAll() {
         return authDAO.listAll();
     }
 
@@ -31,11 +38,19 @@ public class AuthService {
         }
     }
 
-    public void delete(String authToken) throws ResponseException {
+    public AuthData sessionExists(String authToken) throws ResponseException {
+        try {
+            return authDAO.get(authToken);
+        } catch (DataAccessException ex) {
+            throw new ResponseException(401, "Error: unauthorized");
+        }
+    }
+
+    public void delete(String authToken) {
         authDAO.delete(authToken);
     }
 
-    public void deleteAll() throws ResponseException {
+    public void deleteAll() {
         authDAO.deleteAll();
     }
 }

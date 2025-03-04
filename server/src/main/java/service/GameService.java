@@ -17,27 +17,43 @@ public class GameService {
         this.gameDAO = gameDAO;
     }
 
-    public GameData add(String gameName) throws DataAccessException {
-        for (GameData game: gameDAO.listAll()) {
-            if (game.gameName().equals(gameName)) {
-                throw new DataAccessException("Error: game name already taken");
-            }
+    public GameData add(String gameName) throws ResponseException {
+        try {
+            return gameDAO.add(gameName);
+        } catch (DataAccessException ex) {
+            throw new ResponseException(500, "Error: " + ex.getMessage());
         }
-        return gameDAO.add(gameName);
     }
 
     public GameData joinGame(JoinGameRequest joinGameRequest, UserData userData) throws ResponseException {
         try {
-            GameData gameData = this.get(joinGameRequest.gameId());
-            if (joinGameRequest.teamColor() == ChessGame.TeamColor.WHITE) {
-                gameData.setWhiteUsername(userData.username());
-                gameDAO.update(gameData.gameId(), gameData);
+            GameData gameData = gameDAO.get(joinGameRequest.gameId());
+            if (gameData == null) {
+                throw new ResponseException(404, "Game not found");
             }
+            ChessGame.TeamColor teamColor;
+            try {
+                teamColor = ChessGame.TeamColor.valueOf(joinGameRequest.teamColor().toString());
+            } catch (IllegalArgumentException ex) {
+                throw new ResponseException(400, "Invalid team color");
+            }
+            if (teamColor == ChessGame.TeamColor.WHITE) {
+                if (gameData.whiteUsername() != null) {
+                    throw new ResponseException(400, "White team is already occupied");
+                }
+                gameData.setWhiteUsername(userData.username());
+            } else if (teamColor == ChessGame.TeamColor.BLACK) {
+                if (gameData.blackUsername() != null) {
+                    throw new ResponseException(400, "Black team is already occupied");
+                }
+                gameData.setBlackUsername(userData.username());
+            }
+            gameDAO.update(gameData.gameId(), gameData);
+            return gameData;
+
         } catch (DataAccessException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
-
-        return new GameData(1, "hey", "hiagain", "umm", new ChessGame());
     }
 
     public Collection<GameData> listAll() {
