@@ -102,7 +102,7 @@ public class Server {
                 throw new ResponseException(400, "Error: bad request");
             }
             GameData gameData = gameService.add(createGameRequest.gameName());
-            return sendResponse(req,res,new CreateGameResponse(gameData.gameId()));
+            return sendResponse(req,res,new CreateGameResponse(gameData.gameID()));
         } catch (Exception ex) {
             throw new ResponseException(401, ex.getMessage());
         }
@@ -114,25 +114,31 @@ public class Server {
         if (authToken == null || authToken.isEmpty()) {
             throw new ResponseException(401, "Error: unauthorized");
         }
+        authService.sessionExists(authToken);
         var games = gameService.listAll();
-        return sendResponse(req,res,games);
+        return sendResponse(req,res,new ListGamesResponse(games));
     }
 
     //    JOIN GAME
     private Object joinGame(Request req, Response res) throws ResponseException {
-        var authToken = req.headers("Authorization");
-        if (authToken == null || authToken.isBlank()) {
-            throw new ResponseException(401, "Error: unauthorized");
-        }
-        var authData = authService.sessionExists(authToken);
-        if (authData == null) { throw new ResponseException(401, "Error: unauthorized"); }
-
-        var userData = userService.get(authData.username());
-        if (userData == null) { throw new ResponseException(500, "Error: auth session exists but unable to get user"); }
-
-        var joinGameRequest = serializer.fromJson(req.body(), JoinGameRequest.class);
-        var gameData = gameService.joinGame(joinGameRequest, userData);
-        return sendResponse(req,res,gameData);
+            var authToken = req.headers("Authorization");
+            if (authToken == null || authToken.isEmpty()) {
+                throw new ResponseException(401, "Error: unauthorized");
+            }
+            var authData = authService.sessionExists(authToken);
+            var userData = userService.get(authData.username());
+            var joinGameRequest = serializer.fromJson(req.body(), JoinGameRequest.class);
+            System.out.println("playerColor: " + joinGameRequest.playerColor());
+            if (!"WHITE".equals(joinGameRequest.playerColor()) &&
+                    !"BLACK".equals(joinGameRequest.playerColor())) {
+                throw new ResponseException(400, "Error: bad request");
+            }
+            if (joinGameRequest.gameID() == null) {
+                throw new ResponseException(400, "Error: bad request - invalid game ID");
+            }
+            gameService.get(joinGameRequest.gameID());
+            gameService.joinGame(joinGameRequest, userData);
+            return sendResponse(req,res,new EmptyResponse());
     }
 
 //    Clear Entire Application

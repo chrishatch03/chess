@@ -45,7 +45,7 @@ public class GameServiceTests {
         try {
             UserData user = new UserData("player1", "password", "player1@email.com");
             gameService.add("Chess Game");
-            JoinGameRequest joinGameRequest = new JoinGameRequest(ChessGame.TeamColor.WHITE,1);
+            JoinGameRequest joinGameRequest = new JoinGameRequest("WHITE",1);
             GameData updatedGame = gameService.joinGame(joinGameRequest, user);
             assertEquals("player1", updatedGame.whiteUsername(), "White player's username should match");
         } catch (ResponseException ex) {
@@ -57,7 +57,7 @@ public class GameServiceTests {
     void testJoinGameNeg() {
         try {
             UserData user = new UserData("player1", "password", "player1@email.com");
-            JoinGameRequest joinGameRequest = new JoinGameRequest(ChessGame.TeamColor.WHITE,999);
+            JoinGameRequest joinGameRequest = new JoinGameRequest("BLACK",999);
             gameService.joinGame(joinGameRequest, user);
             fail("Expected ResponseException for trying to join a non-existent game");
         } catch (ResponseException ex) {
@@ -94,7 +94,7 @@ public class GameServiceTests {
         try {
             GameData newGame = gameService.add("Chess Game");
             assertNotNull(newGame, "New GameData should not be null");
-            GameData retrievedGame = gameService.get(newGame.gameId());
+            GameData retrievedGame = gameService.get(newGame.gameID());
             assertEquals(newGame, retrievedGame, "GameData retrieved should match GameData added");
         } catch (ResponseException ex) {
             fail("Failed to get game: " + ex.getMessage());

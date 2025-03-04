@@ -7,24 +7,25 @@ import java.util.UUID;
 public class GameMemoryDAO implements GameDAO {
     final private HashMap<Integer, GameData> gameDb = new HashMap<>();
 
+
     public GameData add(String gameName) throws DataAccessException {
         for (GameData game : gameDb.values()) {
             if (game.gameName().equals(gameName)) {
                 throw new DataAccessException("Game name already taken");
             }
         }
-        int id = Math.abs(UUID.randomUUID().hashCode());
-        GameData gameData = new GameData(id, null, null, gameName, null);
-        gameDb.put(id, gameData);
+        int gameID = Math.abs(UUID.randomUUID().hashCode());
+        GameData gameData = new GameData(gameID, null, null, gameName, null);
+        gameDb.put(gameID, gameData);
         return gameData;
     }
 
-    public GameData update(Integer gameId, GameData newGameData) throws DataAccessException {
-        GameData oldGame = this.get(gameId);
-        if (oldGame == null) {
-            throw new DataAccessException("Cannot update game " + gameId.toString() + " because game does not exist");
+    public GameData update(Integer gameID, GameData newGameData) throws DataAccessException {
+        if (!gameDb.containsKey(gameID)) {
+            throw new DataAccessException("Cannot update game " + gameID.toString() + " because game does not exist");
         }
-        gameDb.put(gameId, newGameData);
+        gameDb.remove(gameID);
+        gameDb.put(gameID, newGameData);
         return newGameData;
     }
 
@@ -33,16 +34,15 @@ public class GameMemoryDAO implements GameDAO {
     }
 
 
-    public GameData get(Integer gameId) throws DataAccessException {
-        GameData gameData = gameDb.get(gameId);
-        if (gameData == null) {
-            throw new DataAccessException("Game " + gameId + " does not exist in the database");
+    public GameData get(Integer gameID) throws DataAccessException {
+        if (!gameDb.containsKey(gameID)) {
+            throw new DataAccessException("Game " + gameID.toString() + " does not exist");
         }
-        return gameData;
+        return gameDb.get(gameID);
     }
 
-    public void delete(Integer gameId) {
-        gameDb.remove(gameId);
+    public void delete(Integer gameID) {
+        gameDb.remove(gameID);
     }
 
     public void deleteAll() {

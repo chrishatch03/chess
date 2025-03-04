@@ -1,5 +1,4 @@
 package service;
-import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.GameMemoryDAO;
@@ -27,30 +26,23 @@ public class GameService {
 
     public GameData joinGame(JoinGameRequest joinGameRequest, UserData userData) throws ResponseException {
         try {
-            GameData gameData = gameDAO.get(joinGameRequest.gameId());
+            GameData gameData = gameDAO.get(joinGameRequest.gameID());
             if (gameData == null) {
                 throw new ResponseException(404, "Game not found");
             }
-            ChessGame.TeamColor teamColor;
-            try {
-                teamColor = ChessGame.TeamColor.valueOf(joinGameRequest.teamColor().toString());
-            } catch (IllegalArgumentException ex) {
-                throw new ResponseException(400, "Invalid team color");
-            }
-            if (teamColor == ChessGame.TeamColor.WHITE) {
+            if (joinGameRequest.playerColor().equals("WHITE")) {
                 if (gameData.whiteUsername() != null) {
-                    throw new ResponseException(400, "White team is already occupied");
+                    throw new ResponseException(403, "Error: already taken");
                 }
-                gameData.setWhiteUsername(userData.username());
-            } else if (teamColor == ChessGame.TeamColor.BLACK) {
+                return gameDAO.update(gameData.gameID(), new GameData(gameData.gameID(), userData.username(), gameData.blackUsername(), gameData.gameName(), gameData.game()));
+            } else if (joinGameRequest.playerColor().equals("BLACK")) {
                 if (gameData.blackUsername() != null) {
-                    throw new ResponseException(400, "Black team is already occupied");
+                    throw new ResponseException(403, "Error: already taken");
                 }
-                gameData.setBlackUsername(userData.username());
+                return gameDAO.update(gameData.gameID(), new GameData(gameData.gameID(), gameData.whiteUsername(), userData.username(), gameData.gameName(), gameData.game()));
+            } else {
+                throw new ResponseException(400, "Error: bad request");
             }
-            gameDAO.update(gameData.gameId(), gameData);
-            return gameData;
-
         } catch (DataAccessException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
@@ -60,17 +52,16 @@ public class GameService {
         return gameDAO.listAll();
     }
 
-    public GameData get(Integer gameId) throws ResponseException {
+    public GameData get(Integer gameID) throws ResponseException {
         try {
-            GameData gameData = gameDAO.get(gameId);
-            return gameData;
+            return gameDAO.get(gameID);
         } catch (DataAccessException ex) {
-            throw new ResponseException(500, "Error: no value for " + gameId);
+            throw new ResponseException(500, ex.getMessage());
         }
     }
 
-    public void delete(Integer gameId) {
-        gameDAO.delete(gameId);
+    public void delete(Integer gameID) {
+        gameDAO.delete(gameID);
     }
 
     public void deleteAll() {
