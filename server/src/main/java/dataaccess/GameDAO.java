@@ -7,6 +7,6 @@ public interface GameDAO {
     GameData update(Integer gameId, GameData newGameData) throws DataAccessException;
     Collection<GameData> listAll();
     GameData get(Integer gameId) throws DataAccessException;
-    void delete(Integer gameId);
+    void delete(Integer gameId) throws DataAccessException;
     void deleteAll();
 }

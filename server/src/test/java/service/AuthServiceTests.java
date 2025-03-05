@@ -29,11 +29,10 @@ public class AuthServiceTests {
     @Test
     void testAddNeg() {
         try {
-            authService.add("username");
-            authService.add("username");  // Duplicate session
-            fail("Expected ResponseException for duplicate session");
+            authService.add(null);
+            fail("Expected ResponseException for adding session with null username");
         } catch (ResponseException ex) {
-            assertEquals(500, ex.getStatusCode(), "Should return 500 for duplicate session");
+            assertEquals(400, ex.getStatusCode(), "Should return 400 for null username");
         }
     }
 
@@ -87,11 +86,11 @@ public class AuthServiceTests {
     @Test
     void testDeletePos() {
         try {
-            authService.add("username");
+            AuthData session = authService.add("username");
             authService.add("secondUser");
-            authService.delete("username");
+            authService.delete(session.authToken());
             var authDataList = authService.listAll();
-            assertEquals(1, authDataList.size(), "There should be 1 session left");
+            assertEquals(1, authDataList.size(), "One session should remain after deletion");
         } catch (ResponseException ex) {
             fail("Failed to delete session: " + ex.getMessage());
         }
@@ -101,8 +100,6 @@ public class AuthServiceTests {
     void testDeleteNeg() {
         try {
             authService.add("username");
-            authService.add("secondUser");
-            authService.delete("username");
             authService.delete("invalidUser");
             fail("Expected ResponseException for deleting non-existent session");
         } catch (ResponseException ex) {

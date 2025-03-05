@@ -41,7 +41,10 @@ public class GameMemoryDAO implements GameDAO {
         return gameDb.get(gameID);
     }
 
-    public void delete(Integer gameID) {
+    public void delete(Integer gameID) throws DataAccessException {
+        if (!gameDb.containsKey(gameID)) {
+            throw new DataAccessException("could not delete " + gameID + " because it doesn't exist in the db");
+        }
         gameDb.remove(gameID);
     }
 

@@ -60,8 +60,12 @@ public class GameService {
         }
     }
 
-    public void delete(Integer gameID) {
-        gameDAO.delete(gameID);
+    public void delete(Integer gameID) throws ResponseException {
+        try {
+            gameDAO.delete(gameID);
+        } catch (DataAccessException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
 
     public void deleteAll() {

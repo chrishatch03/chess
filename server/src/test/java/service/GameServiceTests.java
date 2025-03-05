@@ -44,8 +44,8 @@ public class GameServiceTests {
     void testJoinGamePos() {
         try {
             UserData user = new UserData("player1", "password", "player1@email.com");
-            gameService.add("Chess Game");
-            JoinGameRequest joinGameRequest = new JoinGameRequest("WHITE",1);
+            GameData chessGame = gameService.add("Chess Game");
+            JoinGameRequest joinGameRequest = new JoinGameRequest("WHITE",chessGame.gameID());
             GameData updatedGame = gameService.joinGame(joinGameRequest, user);
             assertEquals("player1", updatedGame.whiteUsername(), "White player's username should match");
         } catch (ResponseException ex) {
@@ -115,9 +115,9 @@ public class GameServiceTests {
     @Test
     void testDeletePos() {
         try {
-            gameService.add("Chess Game");
-            gameService.add("Tic Tac Toe");
-            gameService.delete(1);  // Delete the first game
+            var game1 = gameService.add("Chess Game");
+            var game2 = gameService.add("Tic Tac Toe");
+            gameService.delete(game1.gameID());
             var gameList = gameService.listAll();
             assertEquals(1, gameList.size(), "There should be 1 game left");
         } catch (ResponseException ex) {
@@ -128,10 +128,10 @@ public class GameServiceTests {
     @Test
     void testDeleteNeg() {
         try {
-            gameService.add("Chess Game");
-            gameService.add("Tic Tac Toe");
-            gameService.delete(1);  // Delete the first game
-            gameService.delete(999);  // Non-existent game ID
+            var game1 = gameService.add("Chess Game");
+            var game2 = gameService.add("Tic Tac Toe");
+            gameService.delete(game1.gameID());
+            gameService.delete(game1.gameID());
             fail("Expected ResponseException for trying to delete a non-existent game");
         } catch (ResponseException ex) {
             assertEquals(500, ex.getStatusCode(), "Should return 500 for non-existent game");

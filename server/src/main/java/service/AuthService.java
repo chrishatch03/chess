@@ -16,14 +16,10 @@ public class AuthService {
     }
 
     public AuthData add(String username) throws ResponseException {
-        try {
-            return authDAO.add(new AuthData(UUID.randomUUID().toString(), username));
-        } catch (DataAccessException ex) {
-            if (ex.getMessage().equals("Session already exists")) {
-                this.add(username);
-            }
-            throw new ResponseException(500, "Error: unable to create session");
+        if (username == null) {
+            throw new ResponseException(400, "Error: cannot get session for null username");
         }
+        return authDAO.add(new AuthData(UUID.randomUUID().toString(), username));
     }
 
     public Collection<AuthData> listAll() {
@@ -46,8 +42,12 @@ public class AuthService {
         }
     }
 
-    public void delete(String authToken) {
-        authDAO.delete(authToken);
+    public void delete(String authToken) throws ResponseException {
+        try {
+            authDAO.delete(authToken);
+        } catch (DataAccessException ex) {
+            throw new ResponseException(500, "Error: " + ex.getMessage());
+        }
     }
 
     public void deleteAll() {

@@ -16,10 +16,7 @@ public class AuthMemoryDAO implements AuthDAO {
         return false;
     }
 
-    public AuthData add(AuthData authData) throws DataAccessException{
-        if (authDb.containsKey(authData.authToken())) {
-            throw new DataAccessException("Session already exists");
-        }
+    public AuthData add(AuthData authData) {
         authDb.put(authData.authToken(), authData);
         return authData;
     }
@@ -40,7 +37,10 @@ public class AuthMemoryDAO implements AuthDAO {
         throw new DataAccessException("No session for " + authToken);
     }
 
-    public void delete(String authToken) {
+    public void delete(String authToken) throws DataAccessException {
+        if (!authDb.containsKey(authToken)) {
+            throw new DataAccessException("cannot delete session, session nonexistent");
+        }
         authDb.remove(authToken);
     }
 
