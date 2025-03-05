@@ -27,10 +27,7 @@ public class AuthMemoryDAO implements AuthDAO {
 
 
     public AuthData get(String authToken) throws DataAccessException {
-//        AuthData authData = authDb.get(authToken);
-//        if (this.sessionExists(authData.username())) {
-//            return authData;
-//        }
+
         if (this.authDb.containsKey(authToken)) {
             return authDb.get(authToken);
         }
