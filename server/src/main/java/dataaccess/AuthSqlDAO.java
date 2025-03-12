@@ -84,9 +84,9 @@ public class AuthSqlDAO implements AuthDAO {
     }
 
     @Override
-    public void delete(String username) throws DataAccessException {
-        var statement = "DELETE FROM authData WHERE username=?";
-        executeUpdate(statement, username);
+    public void delete(String authToken) throws DataAccessException {
+        var statement = "DELETE FROM authData WHERE authToken=?";
+        executeUpdate(statement, authToken);
     }
 
     @Override
@@ -99,7 +99,6 @@ public class AuthSqlDAO implements AuthDAO {
         var id = rs.getString("authToken");
         var json = rs.getString("json");
         return new Gson().fromJson(json, AuthData.class);
-//        return authData.setAuthToken(id);
     }
 
     private int executeUpdate(String statement, Object... params) throws DataAccessException {

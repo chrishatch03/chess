@@ -23,10 +23,13 @@ public class GameSqlDAO implements GameDAO {
         if (gameNameExists(gameName)) {
             throw new DataAccessException("Game name already taken");
         }
-        var statement = "INSERT INTO gameData (gameName, game, json) VALUES (?, ?, ?)";
-        String fullJson = new Gson().toJson(new GameData(null, null, null, gameName, null));
-        int gameID = executeUpdate(statement, gameName, null, fullJson);
-        return new GameData(gameID, null, null, gameName, null);
+        var insertStatement = "INSERT INTO gameData (gameName, json) VALUES (?, ?)";
+        int gameID = executeUpdate(insertStatement, gameName, "{}");
+        GameData gameData = new GameData(gameID, null, null, gameName, null);
+        String fullJson = new Gson().toJson(gameData);
+        var updateStatement = "UPDATE gameData SET json = ? WHERE gameID = ?";
+        executeUpdate(updateStatement, fullJson, gameID);
+        return gameData;
     }
 
     private boolean gameNameExists(String gameName) throws DataAccessException {
@@ -49,11 +52,11 @@ public class GameSqlDAO implements GameDAO {
     public Collection<GameData> listAll() throws DataAccessException {
         var result = new ArrayList<GameData>();
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT gameID, json FROM gameData";
+            var statement = "SELECT json FROM gameData";
             try (var ps = conn.prepareStatement(statement)) {
                 try (var rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        result.add(readGame(rs));
+                        result.add(new Gson().fromJson(rs.getString("json"), GameData.class));
                     }
                 }
             }
@@ -66,12 +69,12 @@ public class GameSqlDAO implements GameDAO {
     @Override
     public GameData get(Integer gameID) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT gameID, json FROM gameData WHERE gameID=?";
+            var statement = "SELECT json FROM gameData WHERE gameID=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, gameID);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        return readGame(rs);
+                        return new Gson().fromJson(rs.getString("json"), GameData.class);
                     }
                 }
             }
@@ -83,10 +86,9 @@ public class GameSqlDAO implements GameDAO {
 
     @Override
     public GameData update(Integer gameID, GameData newGameData) throws DataAccessException {
-        var statement = "UPDATE gameData SET whiteUsername=?, blackUsername=?, gameName=?, game=?, json=? WHERE gameID=?";
         var json = new Gson().toJson(newGameData);
-        System.out.println(json);
-        executeUpdate(statement, gameID, newGameData.whiteUsername(), newGameData.blackUsername(), newGameData.gameName(), newGameData.game(), json);
+        var statement = "UPDATE gameData SET json=? WHERE gameID=?";
+        executeUpdate(statement, json, gameID);
         return newGameData;
     }
 
@@ -127,19 +129,16 @@ public class GameSqlDAO implements GameDAO {
                 return 0;
             }
         } catch (SQLException e) {
-            throw new DataAccessException(String.format("unable to update user database: %s, %s", statement, e.getMessage()));
+            throw new DataAccessException(String.format("unable to update game database: %s, %s", statement, e.getMessage()));
         }
     }
 
     private final String[] createStatements = {
             """
-            CREATE TABLE IF NOT EXISTS  gameData (
+            CREATE TABLE IF NOT EXISTS gameData (
               `gameID` INT AUTO_INCREMENT NOT NULL,
-              `whiteUsername` varchar(256) DEFAULT NULL,
-              `blackUsername` varchar(256) DEFAULT NULL,
-              `gameName` varchar(256) NOT NULL UNIQUE,
-              `game` TEXT DEFAULT NULL,
-              `json` TEXT DEFAULT NULL,
+              `gameName` VARCHAR(256) NOT NULL UNIQUE,
+              `json` TEXT NOT NULL,
               PRIMARY KEY (`gameID`),
               INDEX(gameName)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci

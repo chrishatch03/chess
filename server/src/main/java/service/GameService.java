@@ -28,7 +28,7 @@ public class GameService {
         try {
             GameData gameData = gameDAO.get(joinGameRequest.gameID());
             if (gameData == null) {
-                throw new ResponseException(404, "Game not found");
+                throw new ResponseException(500, "Error: game doesn't exist");
             }
             if (joinGameRequest.playerColor().equals("WHITE")) {
                 if (gameData.whiteUsername() != null) {
@@ -60,6 +60,10 @@ public class GameService {
 
     public GameData get(Integer gameID) throws ResponseException {
         try {
+            GameData gameData = gameDAO.get(gameID);
+            if (gameData == null) {
+                throw new ResponseException(500, "Error: game doesn't exist");
+            }
             return gameDAO.get(gameID);
         } catch (DataAccessException ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -68,6 +72,10 @@ public class GameService {
 
     public void delete(Integer gameID) throws ResponseException {
         try {
+            GameData gameData = gameDAO.get(gameID);
+            if (gameData == null) {
+                throw new ResponseException(500, "Error: game doesn't exist");
+            }
             gameDAO.delete(gameID);
         } catch (DataAccessException ex) {
             throw new ResponseException(500, ex.getMessage());

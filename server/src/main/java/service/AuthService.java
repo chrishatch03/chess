@@ -3,6 +3,7 @@ import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import model.AuthData;
 import exception.ResponseException;
+
 import java.util.Collection;
 import java.util.UUID;
 
@@ -35,6 +36,7 @@ public class AuthService {
 
     public AuthData get(String authToken) throws ResponseException {
         try {
+            sessionExists(authToken);
             return authDAO.get(authToken);
         } catch (DataAccessException ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -43,7 +45,11 @@ public class AuthService {
 
     public AuthData sessionExists(String authToken) throws ResponseException {
         try {
-            return authDAO.get(authToken);
+            AuthData authData = authDAO.get(authToken);
+            if (authData == null) {
+                throw new ResponseException(401, "Error: unauthorized");
+            }
+            return authData;
         } catch (DataAccessException ex) {
             throw new ResponseException(401, "Error: unauthorized");
         }
@@ -51,6 +57,7 @@ public class AuthService {
 
     public void delete(String authToken) throws ResponseException {
         try {
+            sessionExists(authToken);
             authDAO.delete(authToken);
         } catch (DataAccessException ex) {
             throw new ResponseException(500, "Error: " + ex.getMessage());
