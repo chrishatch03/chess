@@ -11,7 +11,7 @@ public class UserService {
 
     private final UserDAO userDAO;
 
-    public UserService(UserMemoryDAO userDAO) {
+    public UserService(UserDAO userDAO) {
         this.userDAO = userDAO;
     }
 
@@ -41,8 +41,12 @@ public class UserService {
         }
     }
 
-    public Collection<UserData> listAll() {
-        return userDAO.listAll();
+    public Collection<UserData> listAll() throws ResponseException {
+        try {
+            return userDAO.listAll();
+        } catch (DataAccessException ex) {
+            throw new ResponseException(500, "Error: " + ex.getMessage());
+        }
     }
 
     public UserData get(String username) throws ResponseException {
@@ -53,11 +57,19 @@ public class UserService {
         }
     }
 
-    public void delete(String username) {
-        userDAO.delete(username);
+    public void delete(String username) throws ResponseException {
+        try {
+            userDAO.delete(username);
+        } catch (DataAccessException ex) {
+            throw new ResponseException(500, "Error: " + ex.getMessage());
+        }
     }
 
-    public void deleteAll() {
-        userDAO.deleteAll();
+    public void deleteAll() throws ResponseException {
+        try {
+            userDAO.deleteAll();
+        } catch (DataAccessException ex) {
+            throw new ResponseException(500, "Error: " + ex.getMessage());
+        }
     }
 }

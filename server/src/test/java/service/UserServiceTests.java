@@ -1,6 +1,8 @@
 package service;
 import java.util.Collection;
 import java.util.HashSet;
+
+import dataaccess.GameMemoryDAO;
 import exception.*;
 import dataaccess.UserMemoryDAO;
 import model.LoginRequest;
@@ -14,8 +16,13 @@ public class UserServiceTests {
 
     @BeforeEach
     void init() {
-        userService = new UserService(new UserMemoryDAO());
-        userService.deleteAll();
+        try {
+            userService = new UserService(new UserMemoryDAO());
+            userService.deleteAll();
+        } catch (ResponseException ex) {
+            fail("Failed to initialize user service tests " + ex.getMessage());
+        }
+
     }
 
     @Test
@@ -185,8 +192,12 @@ public class UserServiceTests {
         } catch (ResponseException ex) {
             Assertions.fail("User registration failed: " + ex.getMessage());
         }
-        userService.deleteAll();
-        assertTrue(userService.listAll().isEmpty(), "Users Db was not cleared");
+        try {
+            userService.deleteAll();
+            assertTrue(userService.listAll().isEmpty(), "Users Db was not cleared");
+        } catch (ResponseException ex) {
+            fail("Failed testClearPos because userService.deleteAll() threw a ResponseException: " + ex.getMessage());
+        }
     }
 
     @Test
@@ -206,7 +217,11 @@ public class UserServiceTests {
         } catch (ResponseException ex) {
             Assertions.fail("User registration failed: " + ex.getMessage());
         }
-        userService.deleteAll();
-        assertTrue(userService.listAll().isEmpty(), "Users Db was not cleared");
+        try {
+            userService.deleteAll();
+            assertTrue(userService.listAll().isEmpty(), "Users Db was not cleared");
+        } catch (ResponseException ex) {
+            fail("Failed testClearNeg because userService.deleteAll() threw a ResponseException: " + ex.getMessage());
+        }
     }
 }
