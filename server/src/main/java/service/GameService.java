@@ -12,7 +12,7 @@ public class GameService {
 
     private final GameDAO gameDAO;
 
-    public GameService(GameMemoryDAO gameDAO) {
+    public GameService(GameDAO gameDAO) {
         this.gameDAO = gameDAO;
     }
 
@@ -50,8 +50,12 @@ public class GameService {
         }
     }
 
-    public Collection<GameData> listAll() {
-        return gameDAO.listAll();
+    public Collection<GameData> listAll() throws ResponseException {
+        try {
+            return gameDAO.listAll();
+        } catch (DataAccessException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
 
     public GameData get(Integer gameID) throws ResponseException {
@@ -70,7 +74,11 @@ public class GameService {
         }
     }
 
-    public void deleteAll() {
-        gameDAO.deleteAll();
+    public void deleteAll() throws ResponseException {
+        try {
+            gameDAO.deleteAll();
+        } catch (DataAccessException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
 }

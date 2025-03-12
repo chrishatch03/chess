@@ -1,6 +1,7 @@
 package service;
 import chess.ChessGame;
 import dataaccess.GameMemoryDAO;
+import dataaccess.GameSqlDAO;
 import exception.ResponseException;
 import model.GameData;
 import model.JoinGameRequest;
@@ -14,8 +15,12 @@ public class GameServiceTests {
 
     @BeforeEach
     void init() {
-        gameService = new GameService(new GameMemoryDAO());
-        gameService.deleteAll();
+        try {
+            gameService = new GameService(new GameSqlDAO());
+            gameService.deleteAll();
+        } catch (Exception ex) {
+            fail("Failed to initialize game service tests " + ex.getMessage());
+        }
     }
 
     @Test
