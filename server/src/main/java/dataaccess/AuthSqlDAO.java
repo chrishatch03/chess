@@ -1,11 +1,8 @@
 package dataaccess;
-
-import exception.ResponseException;
 import model.AuthData;
 import com.google.gson.Gson;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.ArrayList;
 import java.sql.*;
 

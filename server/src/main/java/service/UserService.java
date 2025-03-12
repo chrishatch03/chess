@@ -5,6 +5,8 @@ import dataaccess.UserMemoryDAO;
 import model.LoginRequest;
 import model.UserData;
 import exception.ResponseException;
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.util.Collection;
 
 public class UserService {
@@ -29,12 +31,13 @@ public class UserService {
     public UserData verifyCredentials(LoginRequest authCredentials) throws ResponseException {
         String reqUsername = authCredentials.username();
         String reqPassword = authCredentials.password();
+
         try {
             UserData userData = userDAO.get(reqUsername);
-            if (userData.username().equals(reqUsername) && userData.password().equals(reqPassword)) {
+            if (userData != null && BCrypt.checkpw(reqPassword, userData.password())) {
                 return userData;
             } else {
-                throw new ResponseException(401, "Error: unauthorized");
+                throw new ResponseException(401, "Error: unauthorized"); // Password doesn't match
             }
         } catch (DataAccessException ex) {
             throw new ResponseException(401, "Error: unauthorized");

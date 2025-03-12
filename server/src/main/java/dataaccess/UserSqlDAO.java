@@ -2,6 +2,7 @@ package dataaccess;
 
 import com.google.gson.Gson;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,10 +20,25 @@ public class UserSqlDAO implements UserDAO {
 
     @Override
     public UserData add(UserData userData) throws DataAccessException {
-        var statement = "INSERT INTO userData (username, password, email, json) VALUES (?, ?, ?)";
-        var json = new Gson().toJson(userData);
-        var id = executeUpdate(statement, userData.username(), userData.password(), userData.email(), json);
-        return new UserData(userData.username(), userData.password(), userData.email());
+        try (var conn = DatabaseManager.getConnection()) {
+            var checkStatement = "SELECT username FROM userData WHERE username = ?";
+            try (var ps = conn.prepareStatement(checkStatement)) {
+                ps.setString(1, userData.username());
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        throw new DataAccessException("Error: already taken");
+                    }
+                }
+            }
+            String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
+            userData = new UserData(userData.username(), hashedPassword, userData.email());
+            var insertStatement = "INSERT INTO userData (username, password, email, json) VALUES (?, ?, ?, ?)";
+            var json = new Gson().toJson(userData);
+            executeUpdate(insertStatement, userData.username(), hashedPassword, userData.email(), json);
+            return userData;
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to add user: %s", e.getMessage()));
+        }
     }
 
     @Override
@@ -52,13 +68,14 @@ public class UserSqlDAO implements UserDAO {
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return readUser(rs);
+                    } else {
+                        throw new DataAccessException("Error: " + username + " not found in userDb");
                     }
                 }
             }
         } catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
         }
-        return null;
     }
 
     @Override
@@ -76,8 +93,8 @@ public class UserSqlDAO implements UserDAO {
     private UserData readUser(ResultSet rs) throws SQLException {
         var id = rs.getString("username");
         var json = rs.getString("json");
-        return new Gson().fromJson(json, UserData.class);
-//        return userData.setUsername(id);
+        UserData userData = new Gson().fromJson(json, UserData.class);
+        return userData;
     }
 
     private int executeUpdate(String statement, Object... params) throws DataAccessException {
@@ -116,7 +133,6 @@ public class UserSqlDAO implements UserDAO {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };
-
 
     private void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
