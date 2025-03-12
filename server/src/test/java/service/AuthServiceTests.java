@@ -11,8 +11,12 @@ public class AuthServiceTests {
 
     @BeforeEach
     void init() {
-        authService = new AuthService(new AuthMemoryDAO());
-        authService.deleteAll();
+        try {
+            authService = new AuthService(new AuthMemoryDAO());
+            authService.deleteAll();
+        } catch (ResponseException ex) {
+            fail("Failed to initialize authService tests: " + ex.getMessage());
+        }
     }
 
     @Test
