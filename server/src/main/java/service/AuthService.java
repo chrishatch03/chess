@@ -11,19 +11,27 @@ public class AuthService {
 
     private final AuthDAO authDAO;
 
-    public AuthService(AuthMemoryDAO authDAO) {
+    public AuthService(AuthDAO authDAO) {
         this.authDAO = authDAO;
     }
 
     public AuthData add(String username) throws ResponseException {
-        if (username == null) {
-            throw new ResponseException(400, "Error: cannot get session for null username");
+        try {
+            if (username == null) {
+                throw new ResponseException(400, "Error: cannot get session for null username");
+            }
+            return authDAO.add(new AuthData(UUID.randomUUID().toString(), username));
+        } catch (DataAccessException ex) {
+            throw new ResponseException(500, "Error: " + ex.getMessage());
         }
-        return authDAO.add(new AuthData(UUID.randomUUID().toString(), username));
     }
 
-    public Collection<AuthData> listAll() {
-        return authDAO.listAll();
+    public Collection<AuthData> listAll() throws ResponseException{
+        try {
+            return authDAO.listAll();
+        } catch (DataAccessException ex) {
+            throw new ResponseException(500, "Error: " + ex.getMessage());
+        }
     }
 
     public AuthData get(String authToken) throws ResponseException {
@@ -50,7 +58,11 @@ public class AuthService {
         }
     }
 
-    public void deleteAll() {
-        authDAO.deleteAll();
+    public void deleteAll() throws ResponseException {
+        try {
+            authDAO.deleteAll();
+        } catch (DataAccessException ex) {
+            throw new ResponseException(500, "Error: " + ex.getMessage());
+        }
     }
 }
