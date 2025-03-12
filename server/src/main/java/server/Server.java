@@ -1,25 +1,61 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.*;
 import exception.ResponseException;
 import model.*;
 import service.AuthService;
 import service.GameService;
 import service.UserService;
-import dataaccess.AuthMemoryDAO;
-import dataaccess.UserMemoryDAO;
-import dataaccess.GameMemoryDAO;
 import spark.*;
 
 public class Server {
 
-    private final UserService userService = new UserService(new UserMemoryDAO());
-    private final AuthService authService = new AuthService(new AuthMemoryDAO());
-    private final GameService gameService = new GameService(new GameMemoryDAO());
+//    private final UserService userService = new UserService(new UserMemoryDAO());
+//    private final AuthService authService = new AuthService(new AuthMemoryDAO());
+//    private final GameService gameService = new GameService(new GameMemoryDAO());
+
+    private final UserService userService;
+    private final AuthService authService;
+    private final GameService gameService;
 
     private final Gson serializer = new Gson();
 
+//    public Server() {
+//    }
+
+//    Sql Database Implementation
     public Server() {
+        UserService tempUserService = null;
+        AuthService tempAuthService = null;
+        GameService tempGameService = null;
+
+        try {
+            tempUserService = new UserService(new UserSqlDAO());
+        } catch (DataAccessException ex) {
+            System.err.println("Error: could not configure user sql db: " + ex.getMessage());
+        }
+
+        try {
+            tempAuthService = new AuthService(new AuthSqlDAO());
+        } catch (DataAccessException ex) {
+            System.err.println("Error: could not configure auth sql db: " + ex.getMessage());
+        }
+
+        try {
+            tempGameService = new GameService(new GameSqlDAO());
+        } catch (DataAccessException ex) {
+            System.err.println("Error: could not configure game sql db: " + ex.getMessage());
+        }
+
+        if (tempUserService == null || tempAuthService == null || tempGameService == null) {
+            System.out.println("Error: a service failed while configuring dbs");
+            System.exit(1);
+        }
+
+        this.userService = tempUserService;
+        this.authService = tempAuthService;
+        this.gameService = tempGameService;
     }
 
     public int run(int desiredPort) {
