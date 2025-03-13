@@ -2,7 +2,7 @@ package dataaccess;
 import model.GameData;
 import java.util.Collection;
 
-public interface GameDAO {
+public interface GameDAO extends DataAccess {
     GameData add(String gameName) throws DataAccessException;
     GameData update(Integer gameId, GameData newGameData) throws DataAccessException;
     Collection<GameData> listAll() throws DataAccessException;

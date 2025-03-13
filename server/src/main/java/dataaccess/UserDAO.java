@@ -2,7 +2,7 @@ package dataaccess;
 import model.UserData;
 import java.util.Collection;
 
-public interface UserDAO {
+public interface UserDAO extends DataAccess {
     UserData add(UserData userData) throws DataAccessException;
     Collection<UserData> listAll() throws DataAccessException;
     UserData get(String username) throws DataAccessException;
