@@ -14,20 +14,16 @@ public class AuthSqlDAO implements AuthDAO {
 
     @Override
     public boolean sessionExists(String username) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT username, json FROM authData WHERE username=?";
-            try (var ps = conn.prepareStatement(statement)) {
-                ps.setString(1, username);
-                try (var rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        AuthData session = readAuth(rs);
-                        if(session.username() != null && !session.username().isEmpty()) {
-                            return true;
-                        }
-                    }
+        var statement = "SELECT username, json FROM authData WHERE username=?";
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(statement)) {
+            ps.setString(1, username);
+            try (var rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("username") != null && !rs.getString("username").isEmpty();
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
         }
         return false;
