@@ -1,5 +1,5 @@
 package service;
-import dataaccess.GameMemoryDAO;
+import dataaccess.GameDAO;
 import exception.ResponseException;
 import model.GameData;
 import model.JoinGameRequest;
@@ -7,14 +7,19 @@ import model.UserData;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GameServiceTests {
+public abstract class GameServiceTests {
 
     GameService gameService;
+    private final GameDAO gameDAO;
+
+    public GameServiceTests(GameDAO gameDAO) {
+        this.gameDAO = gameDAO;
+    }
 
     @BeforeEach
     void init() {
         try {
-            gameService = new GameService(new GameMemoryDAO());
+            gameService = new GameService(gameDAO);
             gameService.deleteAll();
         } catch (Exception ex) {
             fail("Failed to initialize game service tests " + ex.getMessage());

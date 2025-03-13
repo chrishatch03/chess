@@ -1,18 +1,23 @@
 package service;
-import dataaccess.AuthMemoryDAO;
+import dataaccess.AuthDAO;
 import exception.ResponseException;
 import model.AuthData;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AuthServiceTests {
+public abstract class AuthServiceTests {
 
-    AuthService authService;
+    private AuthService authService;
+    private final AuthDAO authDAO;
+
+    public AuthServiceTests(AuthDAO authDAO) {
+        this.authDAO = authDAO;
+    }
 
     @BeforeEach
     void init() {
         try {
-            authService = new AuthService(new AuthMemoryDAO());
+            authService = new AuthService(authDAO);
             authService.deleteAll();
         } catch (Exception ex) {
             fail("Failed to initialize authService tests: " + ex.getMessage());

@@ -1,20 +1,25 @@
 package service;
 import java.util.*;
+import dataaccess.UserDAO;
 import exception.*;
-import dataaccess.UserMemoryDAO;
 import model.LoginRequest;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserServiceTests {
+public abstract class UserServiceTests {
 
     UserService userService;
+    private final UserDAO userDAO;
+
+    public UserServiceTests(UserDAO userDAO) {
+        this.userDAO = userDAO;
+    }
 
     @BeforeEach
     void init() {
         try {
-            userService = new UserService(new UserMemoryDAO());
+            userService = new UserService(userDAO);
             userService.deleteAll();
         } catch (Exception ex) {
             fail("Failed to initialize user service tests " + ex.getMessage());
