@@ -1,7 +1,5 @@
 package dataaccess;
 import service.*;
-import dataaccess.AuthMemoryDAO;
-import dataaccess.AuthSqlDAO;
 import exception.ResponseException;
 import model.AuthData;
 import org.junit.jupiter.api.*;

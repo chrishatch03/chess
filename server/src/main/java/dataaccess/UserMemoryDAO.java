@@ -1,5 +1,7 @@
 package dataaccess;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -11,8 +13,10 @@ public class UserMemoryDAO implements UserDAO {
         if (userDb.containsKey(userData.username())) {
             throw new DataAccessException("Error: already taken");
         }
-        userDb.put(userData.username(), userData);
-        return userData;
+        String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
+        UserData finalUser = new UserData(userData.username(), hashedPassword, userData.email());
+        userDb.put(finalUser.username(), finalUser);
+        return finalUser;
     }
 
     public Collection<UserData> listAll() {

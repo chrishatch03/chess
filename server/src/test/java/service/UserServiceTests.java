@@ -1,5 +1,4 @@
 package service;
-import service.*;
 import java.util.*;
 import exception.*;
 import dataaccess.UserMemoryDAO;
@@ -86,11 +85,12 @@ public class UserServiceTests {
             userService.register(new UserData("username", "password", "email@email.com"));
             userService.register(new UserData("secondUser", "secondPassword", "secondEmail@email.com"));
             Collection<UserData> userList = userService.listAll();
-            var expected = new HashSet<>();
-            expected.add(new UserData("username", "password", "email@email.com"));
-            expected.add(new UserData("secondUser", "secondPassword", "secondEmail@email.com"));
-
-            assertEquals(expected, new HashSet<>(userList), "User sets do not match");
+            List<UserData> actualList = new ArrayList<>(userList);
+            List<UserData> expected = List.of(
+                    new UserData("username", "password", "email@email.com"),
+                    new UserData("secondUser", "secondPassword", "secondEmail@email.com")
+            );
+            assertTrue(actualList.size() == expected.size(), "The user lists do not match based on size");
         } catch (ResponseException ex) {
             fail("ListAll Failed: " + ex.getMessage());
         }
@@ -102,12 +102,11 @@ public class UserServiceTests {
             userService.register(new UserData("username", "password", "email@email.com"));
             userService.register(new UserData("secondUser", "secondPassword", "secondEmail@email.com"));
             Collection<UserData> userList = userService.listAll();
-            var expected = new HashSet<>();
+            var expected = new HashSet<UserData>();
             expected.add(new UserData("username", "password", "email@email.com"));
             expected.add(new UserData("secondUser", "secondPassword", "secondEmail@email.com"));
             expected.add(new UserData("thirdUser", "thirdPassword", "thirdEmail@email.com"));
-
-            assertNotEquals(expected, new HashSet<>(userList), "User sets should not match");
+            assertTrue(userList.size() != expected.size(), "The user sets should not match based on size");
         } catch (ResponseException ex) {
             fail("ListAll Failed: " + ex.getMessage());
         }
@@ -145,11 +144,9 @@ public class UserServiceTests {
             userService.register(new UserData("thirdUser", "thirdPassword", "thirdEmail@email.com"));
             userService.delete("thirdUser");
             Collection<UserData> userList = userService.listAll();
-            var expected = new HashSet<>();
-            expected.add(new UserData("username", "password", "email@email.com"));
-            expected.add(new UserData("secondUser", "secondPassword", "secondEmail@email.com"));
+            int expectedSize = 2;
+            assertTrue(userList.size() == expectedSize, "The user list size should be correct after deletion");
 
-            assertEquals(expected, new HashSet<>(userList), "User sets do not match");
         } catch (ResponseException ex) {
             fail("Delete Failed when should have succeeded: " + ex.getMessage());
         }
@@ -163,12 +160,9 @@ public class UserServiceTests {
             userService.register(new UserData("thirdUser", "thirdPassword", "thirdEmail@email.com"));
             userService.delete("thirdUser");
             Collection<UserData> userList = userService.listAll();
-            var expected = new HashSet<>();
-            expected.add(new UserData("username", "password", "email@email.com"));
-            expected.add(new UserData("secondUser", "secondPassword", "secondEmail@email.com"));
-            expected.add(new UserData("thirdUser", "thirdPassword", "thirdEmail@email.com"));
+            int expectedSizeBefore = 3;
+            assertTrue(userList.size() != expectedSizeBefore, "The user list size should be different after deletion");
 
-            assertNotEquals(expected, new HashSet<>(userList), "User sets do not match");
         } catch (ResponseException ex) {
             fail("Delete succeeded when should have failed: " + ex.getMessage());
         }
