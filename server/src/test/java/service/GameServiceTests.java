@@ -119,7 +119,7 @@ public class GameServiceTests {
     void testDeletePos() {
         try {
             var game1 = gameService.add("Chess Game");
-            var game2 = gameService.add("Tic Tac Toe");
+            gameService.add("Tic Tac Toe");
             gameService.delete(game1.gameID());
             var gameList = gameService.listAll();
             assertEquals(1, gameList.size(), "There should be 1 game left");
@@ -132,7 +132,7 @@ public class GameServiceTests {
     void testDeleteNeg() {
         try {
             var game1 = gameService.add("Chess Game");
-            var game2 = gameService.add("Tic Tac Toe");
+            gameService.add("Tic Tac Toe");
             gameService.delete(game1.gameID());
             gameService.delete(game1.gameID());
             fail("Expected ResponseException for trying to delete a non-existent game");

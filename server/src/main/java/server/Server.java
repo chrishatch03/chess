@@ -11,20 +11,12 @@ import spark.*;
 
 public class Server {
 
-//    private final UserService userService = new UserService(new UserMemoryDAO());
-//    private final AuthService authService = new AuthService(new AuthMemoryDAO());
-//    private final GameService gameService = new GameService(new GameMemoryDAO());
-
     private final UserService userService;
     private final AuthService authService;
     private final GameService gameService;
 
     private final Gson serializer = new Gson();
 
-//    public Server() {
-//    }
-
-//    Sql Database Implementation
     public Server() {
         UserService tempUserService = null;
         AuthService tempAuthService = null;

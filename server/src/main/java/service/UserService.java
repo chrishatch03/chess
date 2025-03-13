@@ -1,7 +1,6 @@
 package service;
 import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
-import dataaccess.UserMemoryDAO;
 import model.LoginRequest;
 import model.UserData;
 import exception.ResponseException;
@@ -19,9 +18,6 @@ public class UserService {
 
     public UserData register(UserData userData) throws ResponseException {
         try {
-            if (userData.username().equals(null) || userData.password().equals(null) || userData.email().equals(null)) {
-                throw new ResponseException(400, "Error: bad request");
-            }
             return userDAO.add(userData);
         } catch (DataAccessException ex) {
             throw new ResponseException(403, ex.getMessage());

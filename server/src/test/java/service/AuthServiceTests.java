@@ -1,6 +1,5 @@
 package service;
 import dataaccess.AuthMemoryDAO;
-import dataaccess.AuthSqlDAO;
 import exception.ResponseException;
 import model.AuthData;
 import org.junit.jupiter.api.*;
@@ -56,7 +55,7 @@ public class AuthServiceTests {
     @Test
     void testGetNeg() {
         try {
-            AuthData newAuthData = authService.add("username");
+            authService.add("username");
             authService.get("invalid_token");
             fail("Expected ResponseException for invalid token");
         } catch (ResponseException ex) {

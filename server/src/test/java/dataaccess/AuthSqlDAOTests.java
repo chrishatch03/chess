@@ -55,7 +55,7 @@ public class AuthSqlDAOTests {
     @Test
     void testGetNeg() {
         try {
-            AuthData newAuthData = authService.add("username");
+            authService.add("username");
             authService.get("invalid_token");
             fail("Expected ResponseException for invalid token");
         } catch (ResponseException ex) {

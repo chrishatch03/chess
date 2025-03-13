@@ -90,7 +90,7 @@ public class UserServiceTests {
                     new UserData("username", "password", "email@email.com"),
                     new UserData("secondUser", "secondPassword", "secondEmail@email.com")
             );
-            assertTrue(actualList.size() == expected.size(), "The user lists do not match based on size");
+            assertEquals(expected.size(), actualList.size(), "The user lists do not match based on size");
         } catch (ResponseException ex) {
             fail("ListAll Failed: " + ex.getMessage());
         }
@@ -145,7 +145,7 @@ public class UserServiceTests {
             userService.delete("thirdUser");
             Collection<UserData> userList = userService.listAll();
             int expectedSize = 2;
-            assertTrue(userList.size() == expectedSize, "The user list size should be correct after deletion");
+            assertEquals(expectedSize, userList.size(), "The user list size should be correct after deletion");
 
         } catch (ResponseException ex) {
             fail("Delete Failed when should have succeeded: " + ex.getMessage());

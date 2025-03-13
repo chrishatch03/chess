@@ -52,11 +52,11 @@ public class GameSqlDAO implements GameDAO {
     public Collection<GameData> listAll() throws DataAccessException {
         var result = new ArrayList<GameData>();
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT json FROM gameData";
+            var statement = "SELECT gameID, json FROM gameData";
             try (var ps = conn.prepareStatement(statement)) {
                 try (var rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        result.add(new Gson().fromJson(rs.getString("json"), GameData.class));
+                        result.add(readGame(rs));
                     }
                 }
             }
@@ -69,12 +69,12 @@ public class GameSqlDAO implements GameDAO {
     @Override
     public GameData get(Integer gameID) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT json FROM gameData WHERE gameID=?";
+            var statement = "SELECT gameID, json FROM gameData WHERE gameID=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, gameID);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        return new Gson().fromJson(rs.getString("json"), GameData.class);
+                        return readGame(rs);
                     }
                 }
             }
@@ -83,6 +83,7 @@ public class GameSqlDAO implements GameDAO {
         }
         return null;
     }
+
 
     @Override
     public GameData update(Integer gameID, GameData newGameData) throws DataAccessException {
@@ -105,7 +106,7 @@ public class GameSqlDAO implements GameDAO {
     }
 
     private GameData readGame(ResultSet rs) throws SQLException {
-        var id = rs.getInt("gameID");
+        rs.getInt("gameID");
         var json = rs.getString("json");
         return new Gson().fromJson(json, GameData.class);
     }

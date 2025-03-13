@@ -91,10 +91,9 @@ public class UserSqlDAO implements UserDAO {
     }
 
     private UserData readUser(ResultSet rs) throws SQLException {
-        var id = rs.getString("username");
+        rs.getString("username");
         var json = rs.getString("json");
-        UserData userData = new Gson().fromJson(json, UserData.class);
-        return userData;
+        return new Gson().fromJson(json, UserData.class);
     }
 
     private int executeUpdate(String statement, Object... params) throws DataAccessException {

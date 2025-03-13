@@ -24,7 +24,7 @@ public class AuthSqlDAO implements AuthDAO {
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
                         AuthData session = readAuth(rs);
-                        if(session.username() != null || !session.username().isEmpty()) {
+                        if(session.username() != null && !session.username().isEmpty()) {
                             return true;
                         }
                     }
@@ -40,7 +40,7 @@ public class AuthSqlDAO implements AuthDAO {
     public AuthData add(AuthData authData) throws DataAccessException {
         var statement = "INSERT INTO authData (authToken, username, json) VALUES (?, ?, ?)";
         var json = new Gson().toJson(authData);
-        var id = executeUpdate(statement, authData.authToken(), authData.username(), json);
+        executeUpdate(statement, authData.authToken(), authData.username(), json);
         return new AuthData(authData.authToken(), authData.username());
     }
 
@@ -93,7 +93,7 @@ public class AuthSqlDAO implements AuthDAO {
     }
 
     private AuthData readAuth(ResultSet rs) throws SQLException {
-        var id = rs.getString("authToken");
+        rs.getString("authToken");
         var json = rs.getString("json");
         return new Gson().fromJson(json, AuthData.class);
     }
