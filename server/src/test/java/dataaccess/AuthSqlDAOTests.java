@@ -1,4 +1,5 @@
-package service;
+package dataaccess;
+import service.*;
 import dataaccess.AuthMemoryDAO;
 import dataaccess.AuthSqlDAO;
 import exception.ResponseException;
@@ -6,14 +7,14 @@ import model.AuthData;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AuthServiceTests {
+public class AuthSqlDAOTests {
 
     AuthService authService;
 
     @BeforeEach
     void init() {
         try {
-            authService = new AuthService(new AuthMemoryDAO());
+            authService = new AuthService(new AuthSqlDAO());
             authService.deleteAll();
         } catch (Exception ex) {
             fail("Failed to initialize authService tests: " + ex.getMessage());
@@ -60,7 +61,7 @@ public class AuthServiceTests {
             authService.get("invalid_token");
             fail("Expected ResponseException for invalid token");
         } catch (ResponseException ex) {
-            assertEquals(401, ex.getStatusCode(), "Should return 401 for invalid session 'unauthorized'");
+            assertEquals(401, ex.getStatusCode(), "Should return 401 unauthorized");
         }
     }
 
@@ -108,7 +109,7 @@ public class AuthServiceTests {
             authService.delete("invalidUser");
             fail("Expected ResponseException for deleting non-existent session");
         } catch (ResponseException ex) {
-            assertEquals(401, ex.getStatusCode(), "Should return 401 for trying to delete non-existent session 'unauthorized'");
+            assertEquals(401, ex.getStatusCode(), "Should return 401 for trying to delete non-existent session");
         }
     }
 

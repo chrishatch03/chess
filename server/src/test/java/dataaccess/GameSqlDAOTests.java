@@ -1,7 +1,5 @@
-package service;
-import chess.ChessGame;
-import dataaccess.GameMemoryDAO;
-import dataaccess.GameSqlDAO;
+package dataaccess;
+import service.*;
 import exception.ResponseException;
 import model.GameData;
 import model.JoinGameRequest;
@@ -9,14 +7,14 @@ import model.UserData;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GameServiceTests {
+public class GameSqlDAOTests {
 
     GameService gameService;
 
     @BeforeEach
     void init() {
         try {
-            gameService = new GameService(new GameMemoryDAO());
+            gameService = new GameService(new GameSqlDAO());
             gameService.deleteAll();
         } catch (Exception ex) {
             fail("Failed to initialize game service tests " + ex.getMessage());

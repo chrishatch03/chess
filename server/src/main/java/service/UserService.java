@@ -37,7 +37,7 @@ public class UserService {
             if (userData != null && BCrypt.checkpw(reqPassword, userData.password())) {
                 return userData;
             } else {
-                throw new ResponseException(401, "Error: unauthorized"); // Password doesn't match
+                throw new ResponseException(401, "Error: unauthorized");
             }
         } catch (DataAccessException ex) {
             throw new ResponseException(401, "Error: unauthorized");
