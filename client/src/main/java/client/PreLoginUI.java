@@ -48,7 +48,13 @@ public class PreLoginUI {
             var username = params[0];
             var password = params[1];
             System.out.println("Logging in: username=" + username + " password=" + password);
-            return server.login(new LoginRequest(username, password)).toString();
+            AuthData authData = server.login(new LoginRequest(username, password));
+            if (authData.username().isEmpty() || authData.authToken().isEmpty()) {
+                throw new ResponseException(400, "Login response invalid in client");
+            }
+            repl.setAuthToken(authData.authToken());
+            repl.setUsername(authData.username());
+            return authData.toString();
         }
         throw new ResponseException(400, "Expected: <username> <password>");
     }

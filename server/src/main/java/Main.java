@@ -8,7 +8,7 @@ public class Main {
                 port = Integer.parseInt(args[0]);
             }
 
-            var server = new Server().run(port);
+            new Server().run(port);
 
             return;
         } catch (Throwable ex) {

@@ -15,17 +15,17 @@ public class ServerFacade {
     }
 
     public AuthData register(RegisterRequest registerRequest) throws ResponseException {
-        var path = "/register";
+        var path = "/user";
         return this.makeRequest("POST", path, registerRequest, AuthData.class);
     }
 
     public AuthData login(LoginRequest LoginRequest) throws ResponseException {
-        var path = "/login";
+        var path = "/session";
         return this.makeRequest("POST", path, LoginRequest, AuthData.class);
     }
 
     public Object logout(EmptyRequest emptyRequest) throws ResponseException {
-        var path = "/logout";
+        var path = "/session";
         return this.makeRequest("DELETE", path, emptyRequest, EmptyResponse.class);
     }
 

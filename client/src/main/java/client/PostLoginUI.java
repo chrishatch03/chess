@@ -1,23 +1,18 @@
 package client;
 
 import java.util.Arrays;
-
-import chess.ChessGame;
 import exception.*;
 import server.ServerFacade;
 import model.*;
 
 public class PostLoginUI {
     private final ServerFacade server;
-    private final String serverUrl;
-    private final Repl repl;
-    private final ChessGame.TeamColor playerColor;
+    private String playerColor = null;
+    private Repl repl;
 
-    public PostLoginUI(String serverUrl, Repl repl, ChessGame.TeamColor playerColor) {
+    public PostLoginUI(String serverUrl, Repl repl) {
         server = new ServerFacade(serverUrl);
-        this.serverUrl = serverUrl;
         this.repl = repl;
-        this.playerColor = playerColor;
     }
 
     public String eval(String input) {
@@ -41,9 +36,12 @@ public class PostLoginUI {
 
 
     public String logout(String... params) throws ResponseException {
-        if (params.length == 2) {
-            System.out.println("Logging out: username=" + username + " password=" + password);
-            return server.logout(new EmptyRequest()).toString();
+        if (params.length == 1) {
+            System.out.println("Logging out: username=" + repl.getUsername());
+            Object res = server.logout(new EmptyRequest());
+            this.repl.setAuthToken("");
+            this.repl.setUsername("");
+            return res.toString();
         }
         throw new ResponseException(400, "Expected: <username> <password>");
     }
@@ -81,6 +79,14 @@ public class PostLoginUI {
             return server.clearApp(new EmptyRequest()).toString();
         }
         throw new ResponseException(400, "Expected no params for clear");
+    }
+
+    public String getPlayerColor() {
+        return this.playerColor;
+    }
+
+    public void setPlayercolor(String newPlayerColor) {
+        this.playerColor = newPlayerColor;
     }
 
 
