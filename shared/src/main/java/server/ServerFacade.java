@@ -1,10 +1,8 @@
 package server;
 
 import com.google.gson.Gson;
-import exception.ErrorResponse;
 import exception.ResponseException;
-import model.Pet;
-
+import model.*;
 import java.io.*;
 import java.net.*;
 
@@ -16,29 +14,41 @@ public class ServerFacade {
         serverUrl = url;
     }
 
-
-    public Object register(RegisterRequest registerRequest) throws ResponseException {
-        var path = "/pet";
-        return this.makeRequest("POST", path, pet, Pet.class);
+    public AuthData register(RegisterRequest registerRequest) throws ResponseException {
+        var path = "/register";
+        return this.makeRequest("POST", path, registerRequest, AuthData.class);
     }
 
-    public void deletePet(int id) throws ResponseException {
-        var path = String.format("/pet/%s", id);
-        this.makeRequest("DELETE", path, null, null);
+    public AuthData login(LoginRequest LoginRequest) throws ResponseException {
+        var path = "/login";
+        return this.makeRequest("POST", path, LoginRequest, AuthData.class);
     }
 
-    public void deleteAllPets() throws ResponseException {
-        var path = "/pet";
-        this.makeRequest("DELETE", path, null, null);
+    public Object logout(EmptyRequest emptyRequest) throws ResponseException {
+        var path = "/logout";
+        return this.makeRequest("DELETE", path, emptyRequest, EmptyResponse.class);
     }
 
-    public Pet[] listPets() throws ResponseException {
-        var path = "/pet";
-        record listPetResponse(Pet[] pet) {
-        }
-        var response = this.makeRequest("GET", path, null, listPetResponse.class);
-        return response.pet();
+    public Object createGame(CreateGameRequest createGameRequest) throws ResponseException {
+        var path = "/game";
+        return this.makeRequest("POST", path, createGameRequest, CreateGameResponse.class);
     }
+
+    public Object listGames(EmptyRequest emptyRequest) throws ResponseException {
+        var path = "/game";
+        return this.makeRequest("GET", path, emptyRequest, ListGamesResponse.class);
+    }
+
+    public Object joinGame(JoinGameRequest joinGameRequest) throws ResponseException {
+        var path = "/game";
+        return this.makeRequest("PUT", path, joinGameRequest, EmptyResponse.class);
+    }
+    
+    public EmptyResponse clearApp(EmptyRequest emptyRequest) throws ResponseException {
+        var path = "/db";
+        return this.makeRequest("DELETE", path, emptyRequest, EmptyResponse.class);
+    }
+
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
