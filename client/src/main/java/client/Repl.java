@@ -8,13 +8,15 @@ import static ui.EscapeSequences.*;
 public class Repl {
     private final PreLoginUI preLoginClient;
     private final PostLoginUI postLoginClient;
+    private final GameplayUI gameplayClient;
     private String authToken = "";
     private String username = "";
-    private GameData currentGame = null;
+    private Integer currentGame = null;
 
     public Repl(String serverUrl) {
         preLoginClient = new PreLoginUI(serverUrl, this);
         postLoginClient = new PostLoginUI(serverUrl, this);
+        gameplayClient = new GameplayUI(serverUrl, this);
 
     }
 
@@ -35,7 +37,7 @@ public class Repl {
                     if (currentGame == null) {
                         result = postLoginClient.eval(userInput);
                     } else {
-                        result = postLoginClient.eval(userInput);
+                        result = gameplayClient.eval(userInput);
                     }
                 }
                 System.out.print(result);
@@ -62,6 +64,14 @@ public class Repl {
 
     public void setUsername(String newUsername) {
         this.username = newUsername;
+    }
+
+    public Integer getCurrentGame() {
+        return this.currentGame;
+    }
+
+    public void setCurrentGame(Integer gameID) {
+        this.currentGame = gameID;
     }
 
     private void printPrompt() {

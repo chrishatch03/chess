@@ -29,13 +29,13 @@ public class GameService {
             if (gameData == null) {
                 throw new ResponseException(500, "Error: game doesn't exist");
             }
-            if (joinGameRequest.playerColor().equals("WHITE")) {
+            if (joinGameRequest.playerColor().toLowerCase().equals("white")) {
                 if (gameData.whiteUsername() != null) {
                     throw new ResponseException(403, "Error: already taken");
                 }
                 return gameDAO.update(gameData.gameID(), new GameData(gameData.gameID(),
                         userData.username(), gameData.blackUsername(), gameData.gameName(), gameData.game()));
-            } else if (joinGameRequest.playerColor().equals("BLACK")) {
+            } else if (joinGameRequest.playerColor().toLowerCase().equals("black")) {
                 if (gameData.blackUsername() != null) {
                     throw new ResponseException(403, "Error: already taken");
                 }

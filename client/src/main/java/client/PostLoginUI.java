@@ -1,9 +1,12 @@
 package client;
 
+import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;
+
 import java.util.Arrays;
 import exception.*;
 import server.ServerFacade;
 import model.*;
+import static ui.EscapeSequences.*;
 
 public class PostLoginUI {
     private final ServerFacade server;
@@ -26,7 +29,6 @@ public class PostLoginUI {
                 case "list" -> listGames(params);
                 case "join" -> joinGame(params);
                 case "clear" -> clearApp(params);
-                case "quit" -> "quit";
                 default -> help();
             };
         } catch (ResponseException ex) {
@@ -36,45 +38,50 @@ public class PostLoginUI {
 
 
     public String logout(String... params) throws ResponseException {
-        if (params.length == 1) {
+        if (params.length == 0) {
             System.out.println("Logging out: username=" + repl.getUsername());
-            Object res = server.logout(new EmptyRequest());
+            Object res = server.logout(repl.getAuthToken());
             this.repl.setAuthToken("");
             this.repl.setUsername("");
             return res.toString();
         }
-        throw new ResponseException(400, "Expected: <username> <password>");
+        throw new ResponseException(400, "Expected no parameters for logout");
     }
 
     public String createGame(String... params) throws ResponseException {
-        if (params.length == 2) {
-            var gameName = params[1];
-            System.out.println("Creating game: " + gameName);
-            return server.createGame(new CreateGameRequest(gameName)).toString();
+        if (params.length == 1) {
+            var gameName = params[0];
+            return "Created game: " + server.createGame(new CreateGameRequest(gameName), repl.getAuthToken()).gameID().toString();
         }
         throw new ResponseException(400, "Expected: <gameName>");
     }
 
     public String listGames(String... params) throws ResponseException {
-        if (params.length == 1) {
-            System.out.println("Getting games");
-            return server.listGames(new EmptyRequest()).toString();
+        if (params.length == 0) {
+            var games = server.listGames(repl.getAuthToken()).games();
+            StringBuilder output = new StringBuilder(SET_TEXT_COLOR_WHITE + "Games Available:\n");
+            for (GameData currentGame : games) {
+                output.append(currentGame.toString() + "\n");
+            }
+            return output.toString();
         }
         throw new ResponseException(400, "Expected no params for 'list'");
     }
 
     public String joinGame(String... params) throws ResponseException {
-        if (params.length == 3) {
-            var playerColor = params[1];
+        if (params.length == 2) {
+            var playerColor = params[0];
             var gameId = Integer.parseInt(params[1]);
             System.out.println("Joining game: " + gameId);
-            return server.joinGame(new JoinGameRequest(playerColor, gameId)).toString();
+            server.joinGame(new JoinGameRequest(playerColor, gameId), repl.getAuthToken()).toString();
+            this.repl.setCurrentGame(gameId);
+            return "";
         }
         throw new ResponseException(400, "Expected: <playerColor> <gameId>");
     }
 
     public String clearApp(String... params) throws ResponseException {
-        if (params.length == 1) {
+        if (params.length == 0) {
             System.out.println("Clearing chess");
             return server.clearApp(new EmptyRequest()).toString();
         }
@@ -91,7 +98,7 @@ public class PostLoginUI {
 
 
     public String help() {
-        return """
+        return SET_TEXT_COLOR_BLUE + """
                 - list
                 - create <gameName>
                 - join <playerColor> <gameId>

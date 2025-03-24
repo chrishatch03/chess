@@ -44,7 +44,7 @@ public class ServerFacade {
 
     public Object joinGame(JoinGameRequest joinGameRequest, String authToken) throws ResponseException {
         var path = "/game";
-        if (authToken.isEmpty()) { throw new ResponseException(400, "Invalid logout request: authToken was null"); }
+        if (authToken.isEmpty()) { throw new ResponseException(400, "Invalid joinGame request: authToken was null"); }
         return this.makeRequest("PUT", path, joinGameRequest, EmptyResponse.class, authToken);
     }
     
