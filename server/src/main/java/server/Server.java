@@ -22,23 +22,9 @@ public class Server {
         AuthService tempAuthService = null;
         GameService tempGameService = null;
 
-        try {
-            tempUserService = new UserService(new UserSqlDAO());
-        } catch (DataAccessException ex) {
-            System.err.println("Error: could not configure user sql db: " + ex.getMessage());
-        }
-
-        try {
-            tempAuthService = new AuthService(new AuthSqlDAO());
-        } catch (DataAccessException ex) {
-            System.err.println("Error: could not configure auth sql db: " + ex.getMessage());
-        }
-
-        try {
-            tempGameService = new GameService(new GameSqlDAO());
-        } catch (DataAccessException ex) {
-            System.err.println("Error: could not configure game sql db: " + ex.getMessage());
-        }
+            tempUserService = new UserService(new UserMemoryDAO());
+            tempAuthService = new AuthService(new AuthMemoryDAO());
+            tempGameService = new GameService(new GameMemoryDAO());
 
         if (tempUserService == null || tempAuthService == null || tempGameService == null) {
             System.out.println("Error: a service failed while configuring dbs");
@@ -139,6 +125,7 @@ public class Server {
     //    LIST GAMES
     private Object listGames(Request req, Response res) throws ResponseException {
         var authToken = req.headers("Authorization");
+        System.out.println("listGames authToken: " + authToken);
         if (authToken == null || authToken.isEmpty()) {
             throw new ResponseException(401, "Error: unauthorized");
         }

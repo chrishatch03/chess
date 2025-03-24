@@ -16,48 +16,60 @@ public class ServerFacade {
 
     public AuthData register(RegisterRequest registerRequest) throws ResponseException {
         var path = "/user";
-        return this.makeRequest("POST", path, registerRequest, AuthData.class);
+        return this.makeRequest("POST", path, registerRequest, AuthData.class, null);
     }
 
     public AuthData login(LoginRequest LoginRequest) throws ResponseException {
         var path = "/session";
-        return this.makeRequest("POST", path, LoginRequest, AuthData.class);
+        return this.makeRequest("POST", path, LoginRequest, AuthData.class, null);
     }
 
-    public Object logout(EmptyRequest emptyRequest) throws ResponseException {
+    public Object logout(String authToken) throws ResponseException {
         var path = "/session";
-        return this.makeRequest("DELETE", path, emptyRequest, EmptyResponse.class);
+        if (authToken.isEmpty()) { throw new ResponseException(400, "Invalid logout request: authToken was null"); }
+        return this.makeRequest("DELETE", path, new EmptyRequest(), EmptyResponse.class, authToken);
     }
 
-    public Object createGame(CreateGameRequest createGameRequest) throws ResponseException {
+    public CreateGameResponse createGame(CreateGameRequest createGameRequest, String authToken) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("POST", path, createGameRequest, CreateGameResponse.class);
+        if (authToken.isEmpty()) { throw new ResponseException(400, "Invalid createGame request: authToken was null"); }
+        return this.makeRequest("POST", path, createGameRequest, CreateGameResponse.class, authToken);
     }
 
-    public Object listGames(EmptyRequest emptyRequest) throws ResponseException {
+    public ListGamesResponse listGames(String authToken) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("GET", path, emptyRequest, ListGamesResponse.class);
+        if (authToken.isEmpty()) { throw new ResponseException(400, "Invalid listGames request: authToken was null"); }
+        return this.makeRequest("GET", path, new EmptyRequest(), ListGamesResponse.class, authToken);
     }
 
-    public Object joinGame(JoinGameRequest joinGameRequest) throws ResponseException {
+    public Object joinGame(JoinGameRequest joinGameRequest, String authToken) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("PUT", path, joinGameRequest, EmptyResponse.class);
+        if (authToken.isEmpty()) { throw new ResponseException(400, "Invalid logout request: authToken was null"); }
+        return this.makeRequest("PUT", path, joinGameRequest, EmptyResponse.class, authToken);
     }
     
     public EmptyResponse clearApp(EmptyRequest emptyRequest) throws ResponseException {
         var path = "/db";
-        return this.makeRequest("DELETE", path, emptyRequest, EmptyResponse.class);
+        return this.makeRequest("DELETE", path, emptyRequest, EmptyResponse.class, null);
     }
 
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
+            
 
-            writeBody(request, http);
+            if (authToken != null && !authToken.isEmpty()) {
+                writeHeader(authToken, http);
+            }
+
+            if (!method.equals("GET") && request != null) {
+                writeBody(request, http);
+            }
+
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
@@ -77,6 +89,10 @@ public class ServerFacade {
                 reqBody.write(reqData.getBytes());
             }
         }
+    }
+
+    private static void writeHeader(String authToken, HttpURLConnection http) {
+        http.addRequestProperty("Authorization", authToken);
     }
 
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
