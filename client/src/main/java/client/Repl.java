@@ -26,15 +26,16 @@ public class Repl {
         var result = "";
         while (!result.equals("quit")) {
             printPrompt();
-            String line = scanner.nextLine();
+            String userInput = scanner.nextLine();
+            System.out.print(SET_TEXT_COLOR_BLACK);
             try {
                 if (authToken.isEmpty()) {
-                    result = preLoginClient.eval(line);
+                    result = preLoginClient.eval(userInput);
                 } else {
                     if (currentGame == null) {
-                        result = postLoginClient.eval(line);
+                        result = postLoginClient.eval(userInput);
                     } else {
-                        result = postLoginClient.eval(line);
+                        result = postLoginClient.eval(userInput);
                     }
                 }
                 System.out.print(result);
