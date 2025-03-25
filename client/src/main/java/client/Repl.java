@@ -1,7 +1,8 @@
 package client;
 
 import java.util.Scanner;
-import model.*;
+
+import chess.*;
 
 import static ui.EscapeSequences.*;
 
@@ -12,6 +13,7 @@ public class Repl {
     private String authToken = "";
     private String username = "";
     private Integer currentGame = null;
+    private String playerColor = null;
 
     public Repl(String serverUrl) {
         preLoginClient = new PreLoginUI(serverUrl, this);
@@ -27,6 +29,11 @@ public class Repl {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
+            if (currentGame != null) {
+                ChessBoard blankBoard = new ChessBoard();
+                blankBoard.resetBoard();
+                gameplayClient.drawBoard(playerColor, blankBoard);
+            }
             printPrompt();
             String userInput = scanner.nextLine();
             System.out.print(SET_TEXT_COLOR_BLACK);
@@ -40,7 +47,9 @@ public class Repl {
                         result = gameplayClient.eval(userInput);
                     }
                 }
-                System.out.print(result);
+                if (result != "" && !result.isEmpty()) {
+                    System.out.print(result);
+                }
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
@@ -74,8 +83,16 @@ public class Repl {
         this.currentGame = gameID;
     }
 
+    public String getPlayerColor() {
+        return this.playerColor;
+    }
+
+    public void setPlayerColor(String newPlayerColor) {
+        this.playerColor = newPlayerColor.toLowerCase();
+    }
+
     private void printPrompt() {
-        System.out.print("\n" + SET_TEXT_COLOR_BLACK + ">>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + RESET_BG_COLOR + SET_TEXT_COLOR_BLACK + ">>> " + SET_TEXT_COLOR_GREEN);
     }
 
 }

@@ -75,6 +75,7 @@ public class PostLoginUI {
             System.out.println("Joining game: " + gameId);
             server.joinGame(new JoinGameRequest(playerColor, gameId), repl.getAuthToken()).toString();
             this.repl.setCurrentGame(gameId);
+            this.repl.setPlayerColor(playerColor);
             return "";
         }
         throw new ResponseException(400, "Expected: <playerColor> <gameId>");
