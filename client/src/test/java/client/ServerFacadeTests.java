@@ -14,15 +14,15 @@ public class ServerFacadeTests {
     private static ServerFacade facade;
 
     @BeforeAll
-    public static void init() throws Exception {
+    public static void init() {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
-        facade = new ServerFacade("http://localhost:"+ String.valueOf(port));
+        facade = new ServerFacade("http://localhost:"+ port);
     }
 
     @AfterAll
-    static void stopServer() throws Exception {
+    static void stopServer() {
         server.stop();
     }
 
@@ -38,13 +38,13 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void testRegisterNeg() throws Exception {
+    public void testRegisterNeg() {
         try {
             facade.register(new RegisterRequest("username", null, "email"));
         } catch (ResponseException ex) {
-            System.out.println(ex.toString());
-            assertEquals(400, ex.getStatusCode(), "Expeced 400 error for bad request");
-            assertEquals("Error: bad request", ex.getMessage(), "Expeced error message 'Error: bad request'");
+            System.out.println(ex.getMessage());
+            assertEquals(400, ex.getStatusCode(), "Expected 400 error for bad request");
+            assertEquals("Error: bad request", ex.getMessage(), "Expected error message 'Error: bad request'");
         }
     }
 
@@ -56,14 +56,13 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void testLoginNeg() throws Exception {
-        var resException = assertThrows(ResponseException.class, () -> {
-            facade.login(new LoginRequest("user not registered", "password"));
-        });
+    public void testLoginNeg() {
+        var resException = assertThrows(ResponseException.class,
+                () -> facade.login(new LoginRequest("user not registered", "password"))
+        );
 
-        ResponseException ex = (ResponseException) resException;
-        assertEquals(401, ex.getStatusCode(), "Expected status 401 error");
-        assertEquals("Error: unauthorized", ex.getMessage(), "Error message incorrect: " + ex.getMessage());
+        assertEquals(401, resException.getStatusCode(), "Expected status 401 error");
+        assertEquals("Error: unauthorized", resException.getMessage(), "Error message incorrect: " + resException.getMessage());
     }
 
     @Test
@@ -77,31 +76,29 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void testLogoutNeg() throws Exception {
-        var exception = assertThrows(ResponseException.class, () -> {
-            facade.logout("badAuthToken");
-        });
+    public void testLogoutNeg() {
+        var exception = assertThrows(ResponseException.class,
+                () -> facade.logout("badAuthToken")
+        );
 
-        ResponseException resException = (ResponseException) exception;
-        assertEquals(401, resException.getStatusCode(), "Expected 401: unauthorized");
+        assertEquals(401, exception.getStatusCode(), "Expected 401: unauthorized");
     }
 
     @Test
     public void testCreateGamePos() throws Exception {
         var authData = facade.register(new RegisterRequest("username", "password", "email"));
         var gameData = facade.createGame(new CreateGameRequest("My game"), authData.authToken());
-        assertTrue(gameData.gameID() != null, "Expected gameID but recieved none");
+        assertNotNull(gameData.gameID(), "Expected gameID but received none");
     }
     
     @Test
     public void testCreateGameNeg() throws Exception {
         facade.register(new RegisterRequest("username", "password", "email"));
-        var exception = assertThrows(ResponseException.class, () -> {
-            facade.createGame(new CreateGameRequest("My Game"), "Bad Auth Token");
-        });
+        var exception = assertThrows(ResponseException.class, () ->
+            facade.createGame(new CreateGameRequest("My Game"), "Bad Auth Token")
+        );
         
-        ResponseException resException = (ResponseException) exception;
-        assertEquals(401, resException.getStatusCode(), "Expected 401 status");
+        assertEquals(401, exception.getStatusCode(), "Expected 401 status");
     }
     
     @Test
@@ -110,19 +107,18 @@ public class ServerFacadeTests {
         facade.createGame(new CreateGameRequest("My game"), authData.authToken());
         ListGamesResponse gameList = facade.listGames(authData.authToken());
         var games = gameList.games();
-        assertEquals(1, games.size(), "Expected only 1 game, found " + String.valueOf(games.size()));
+        assertEquals(1, games.size(), "Expected only 1 game, found " + games.size());
     }
 
     @Test
     public void testListGamesNeg() throws Exception {
         var authData = facade.register(new RegisterRequest("username", "password", "email"));
         facade.createGame(new CreateGameRequest("My game"), authData.authToken());
-        var exception = assertThrows(ResponseException.class, () -> {
-            facade.listGames("Bad auth token");
-        });
+        var exception = assertThrows(ResponseException.class, () ->
+            facade.listGames("Bad auth token")
+        );
 
-        ResponseException resException = (ResponseException) exception;
-        assertEquals(401, resException.getStatusCode(), "Expected 401 response code");
+        assertEquals(401, exception.getStatusCode(), "Expected 401 response code");
     }
 
     @Test
@@ -133,19 +129,18 @@ public class ServerFacadeTests {
         var gameList = facade.listGames(authData.authToken()).games();
 
         var game = gameList.iterator().next();
-        assertEquals(game.whiteUsername(), "username", "Username not added to game");
+        assertEquals("username", game.whiteUsername(), "Username not added to game");
     }
 
     @Test
     public void testJoinGameNeg() throws Exception {
         var authData = facade.register(new RegisterRequest("username", "password", "email"));
         var createResponse = facade.createGame(new CreateGameRequest("My game"), authData.authToken());
-        var exception = assertThrows(ResponseException.class, () -> {
-            facade.joinGame(new JoinGameRequest("WHITE", createResponse.gameID()), "Bad auth token");
-        });
+        var exception = assertThrows(ResponseException.class, () ->
+            facade.joinGame(new JoinGameRequest("WHITE", createResponse.gameID()), "Bad auth token")
+        );
 
-        var resException = (ResponseException) exception;
-        assertEquals(401, resException.getStatusCode(), "Expected 401 error");
+        assertEquals(401, exception.getStatusCode(), "Expected 401 error");
     }
 
 }
