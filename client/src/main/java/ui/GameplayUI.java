@@ -1,8 +1,8 @@
-package client;
+package ui;
 
 // import java.io.CharArrayReader;
 import java.util.Arrays;
-import ui.*;
+
 import chess.ChessBoard;
 import exception.*;
 import server.ServerFacade;

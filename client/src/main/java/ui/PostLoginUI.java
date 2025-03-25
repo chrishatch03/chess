@@ -1,4 +1,4 @@
-package client;
+package ui;
 
 import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;
 
