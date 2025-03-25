@@ -9,8 +9,7 @@ import model.*;
 
 public class GameplayUI {
     private final ServerFacade server;
-    private String playerColor = null;
-    private Repl repl;
+    private final Repl repl;
 
 
     public GameplayUI(String serverUrl, Repl repl) {
@@ -46,18 +45,13 @@ public class GameplayUI {
         throw new ResponseException(400, "Expected no params for clear");
     }
 
-    public String backToPostLogin(String... params) {
-        this.repl.setCurrentGame(null);
-        this.repl.setPlayerColor(null);
-        return "";
-    }
-
-    public String getPlayerColor() {
-        return this.playerColor;
-    }
-
-    public void setPlayercolor(String newPlayerColor) {
-        this.playerColor = newPlayerColor;
+    public String backToPostLogin(String... params) throws ResponseException {
+        if (params.length > 0) {
+            this.repl.setCurrentGame(null);
+            this.repl.setPlayerColor(null);
+            return "";
+        }
+        throw new ResponseException(400, "Expected no parameters for back.");
     }
 
 

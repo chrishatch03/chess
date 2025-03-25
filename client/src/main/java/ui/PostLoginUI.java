@@ -12,8 +12,7 @@ import static ui.EscapeSequences.*;
 
 public class PostLoginUI {
     private final ServerFacade server;
-    private String playerColor = null;
-    private Repl repl;
+    private final Repl repl;
 
     public PostLoginUI(String serverUrl, Repl repl) {
         server = new ServerFacade(serverUrl);
@@ -41,7 +40,6 @@ public class PostLoginUI {
 
     public String logout(String... params) throws ResponseException {
         if (params.length == 0) {
-            System.out.println("Logging out: username=" + repl.getUsername());
             server.logout(repl.getAuthToken());
             this.repl.setAuthToken(null);
             this.repl.setUsername(null);
@@ -63,21 +61,26 @@ public class PostLoginUI {
             var games = server.listGames(repl.getAuthToken()).games();
             StringBuilder output = new StringBuilder(SET_TEXT_COLOR_WHITE + "Games Available:\n");
             for (GameData currentGame : games) {
-                output.append("Game " + currentGame.gameID().toString() + ": " + currentGame.gameName().toString());
+                output.append("Game ").append(currentGame.gameID().toString()).append(": ").append(currentGame.gameName());
 
-                String status;
-                boolean whiteAvailable = (currentGame.whiteUsername() == null || currentGame.whiteUsername().isEmpty()) ? true : false;
-                boolean blackAvailable = (currentGame.blackUsername() == null || currentGame.blackUsername().isEmpty()) ? true : false;
-                if (whiteAvailable == true && blackAvailable == true) { status = "white, black"; }
-                else if (whiteAvailable == true && blackAvailable == false) { status = "white"; }
-                else if (whiteAvailable == false && blackAvailable == true) { status = "black"; }
-                else { status = "full"; }
+                String status = getStatus(currentGame);
 
-                output.append("  -->   Available: " + status + "\n");
+                output.append("  -->   Available: ").append(status).append("\n");
             }
             return output.toString();
         }
         throw new ResponseException(400, "Expected no params for 'list'");
+    }
+
+    private static String getStatus(GameData currentGame) {
+        String status;
+        boolean whiteAvailable = currentGame.whiteUsername() == null || currentGame.whiteUsername().isEmpty();
+        boolean blackAvailable = currentGame.blackUsername() == null || currentGame.blackUsername().isEmpty();
+        if (whiteAvailable && blackAvailable) { status = "white, black"; }
+        else if (whiteAvailable) { status = "white"; }
+        else if (blackAvailable) { status = "black"; }
+        else { status = "full"; }
+        return status;
     }
 
     public String joinGame(String... params) throws ResponseException {
@@ -91,9 +94,10 @@ public class PostLoginUI {
                     gameId = game.gameID();
                 }
             }
-            if (gameId == null) { throw new ResponseException(400, "Could not find the game you tried to join: " + String.valueOf(gameId)); }
+            if (gameId == null) throw new ResponseException(400, "Could not find the game you tried to join");
 
             var truePlayerColor = stringToPlayerColor(playerColor);
+            if (truePlayerColor == null) throw new ResponseException(400, "Could not convert " + playerColor + " to ChessGame.TeamColor");
             GameData alreadyJoinedExistingGame = rejoinGame(truePlayerColor, gameId, this.repl.getUsername());
             if (alreadyJoinedExistingGame != null) {
                 this.repl.setCurrentGame(alreadyJoinedExistingGame);
@@ -118,12 +122,12 @@ public class PostLoginUI {
             }
             return null;
         } catch (Exception exception) {
-            System.out.println("getGame(): unable to get game " + String.valueOf(gameId));
+            System.out.println("getGame(): unable to get game " + gameId);
             return null;
         }
     }
 
-    public GameData rejoinGame(ChessGame.TeamColor playerColor, Integer gameId, String userUsername) {
+    public GameData rejoinGame(ChessGame.TeamColor ignoredPlayerColor, Integer gameId, String userUsername) {
         
         GameData game = getGame(gameId);
         if (game == null) { return null; }
@@ -137,10 +141,10 @@ public class PostLoginUI {
 
     public ChessGame.TeamColor stringToPlayerColor(String playerColorString) {
         String cleanString = playerColorString.trim().toLowerCase();
-        return switch (cleanString) {
-            case "white" -> ChessGame.TeamColor.WHITE;
-            default -> ChessGame.TeamColor.BLACK;
-        };
+
+        if (cleanString.equals("white")) { return ChessGame.TeamColor.WHITE; }
+        else if (cleanString.equals("black")) { return ChessGame.TeamColor.BLACK; }
+        return null;
     }
 
     public String clearApp(String... params) throws ResponseException {
@@ -156,13 +160,6 @@ public class PostLoginUI {
         throw new ResponseException(400, "Expected no params for clear");
     }
 
-    public String getPlayerColor() {
-        return this.playerColor;
-    }
-
-    public void setPlayercolor(String newPlayerColor) {
-        this.playerColor = newPlayerColor;
-    }
 
 
     public String help() {

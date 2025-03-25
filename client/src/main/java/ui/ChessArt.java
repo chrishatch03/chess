@@ -12,13 +12,13 @@ public class ChessArt {
     private static final int BOARD_SIZE_IN_SQUARES = 10;
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 3;
 
-    private static String BORDER_BG = SET_BG_COLOR_DARK_GREY;
-    private static String BLACK_BG = SET_BG_COLOR_BLACK;
-    private static String WHITE_BG = SET_BG_COLOR_WHITE;
+    private static final String BORDER_BG = SET_BG_COLOR_DARK_GREY;
+    private static final String BLACK_BG = SET_BG_COLOR_BLACK;
+    private static final String WHITE_BG = SET_BG_COLOR_WHITE;
     
-    private static String BORDER_TEXT = SET_TEXT_COLOR_BLACK;
-    private static String BLACK_TEXT = SET_TEXT_COLOR_BLUE;
-    private static String WHITE_TEXT = SET_TEXT_COLOR_RED;
+    private static final String BORDER_TEXT = SET_TEXT_COLOR_BLACK;
+    private static final String BLACK_TEXT = SET_TEXT_COLOR_BLUE;
+    private static final String WHITE_TEXT = SET_TEXT_COLOR_RED;
 
     
     public static void draw(ChessBoard board, ChessGame.TeamColor playerColor) {
@@ -38,7 +38,6 @@ public class ChessArt {
     private static void drawChessBoard(PrintStream out, ChessBoard board, ChessGame.TeamColor playerColor) {
 
         drawTopBoarder(out, playerColor);
-
         if (playerColor == ChessGame.TeamColor.WHITE) {
 
             for (int boardRow = BOARD_SIZE_IN_SQUARES - 2; boardRow >= 1; --boardRow) {
@@ -51,8 +50,6 @@ public class ChessArt {
                 drawRowOfSquares(out, board, boardRow, playerColor);
             }
         }
-
-
         drawTopBoarder(out, playerColor);
 
     }
@@ -65,17 +62,13 @@ public class ChessArt {
             if (playerColor == ChessGame.TeamColor.WHITE) {
 
                 for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
-    
                     printSquareRow(out, squareRow, columnLabels[boardCol], BORDER_BG, BORDER_TEXT);
-    
                 }
 
             } else {
 
                 for (int boardCol = BOARD_SIZE_IN_SQUARES -1 ; boardCol >= 0; --boardCol) {
-
                     printSquareRow(out, squareRow, columnLabels[boardCol], BORDER_BG, BORDER_TEXT);
-    
                 }
 
             }
@@ -92,12 +85,13 @@ public class ChessArt {
             int suffixLength = SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
 
             out.print(EMPTY.repeat(prefixLength));
-            printSquareContent(out, label, BORDER_BG, BORDER_TEXT);
+            printSquareContent(out, label, bgColor, textColor);
             out.print(EMPTY.repeat(suffixLength));
         }
         else {
             out.print(EMPTY.repeat(SQUARE_SIZE_IN_PADDED_CHARS));
         }
+        setReset(out);
     }
 
     private static void drawRowOfSquares(PrintStream out, ChessBoard board, int rowNum, ChessGame.TeamColor playerColor) {
@@ -129,19 +123,12 @@ public class ChessArt {
         String textColor;
         String paddedCharacter;
         if (colNum == 0 || colNum == 9) {
-            // char is the row number
-            // boarder bg
-            // boarder text
             squareColor = BORDER_BG;
             textColor = BORDER_TEXT;
             paddedCharacter = getPaddedRow(rowNum, playerColor);
         } else {
-            // char is piece char
-            // square color depends on getSquareColor
-            // team text color
             ChessPiece piece = board.getPiece(new ChessPosition(rowNum, colNum));
             squareColor = getSquareColor(rowNum, colNum);
-            // textColor line should probably be refactored
             textColor = (piece == null) ? RESET_TEXT_COLOR : (piece.getTeamColor() == ChessGame.TeamColor.BLACK) ? BLACK_TEXT : WHITE_TEXT;
             paddedCharacter = getPaddedPiece(piece);
         }
@@ -149,20 +136,7 @@ public class ChessArt {
         out.print(squareColor);
         out.print(textColor);
 
-        if (squareRow == SQUARE_SIZE_IN_PADDED_CHARS / 2) {
-            int prefixLength = SQUARE_SIZE_IN_PADDED_CHARS / 2;
-            int suffixLength = SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
-            
-
-            out.print(EMPTY.repeat(prefixLength));
-            printSquareContent(out, paddedCharacter, squareColor, textColor);
-            out.print(EMPTY.repeat(suffixLength));
-        }
-        else {
-            out.print(EMPTY.repeat(SQUARE_SIZE_IN_PADDED_CHARS));
-        }
-
-        setReset(out);
+        printSquareRow(out, squareRow, paddedCharacter, squareColor, textColor);
     }
 
     private static String getPaddedPiece(ChessPiece piece) {
@@ -193,7 +167,7 @@ public class ChessArt {
                 case 8 -> ROW8;
                 default -> EMPTY;
             };
-        } else { // Reverse order for Black's perspective
+        } else {
             return switch (rowNum) {
                 case 8 -> ROW1;
                 case 7 -> ROW2;
@@ -210,8 +184,6 @@ public class ChessArt {
 
     private static String getSquareColor(int rowNum, int colNum) {
 
-        //odd row & even column is white. odd row & odd column is black.
-        // even row & even column is black. even row & odd column is white.
         int evenRow = rowNum % 2;
         int evenCol = colNum % 2;
         return switch (evenRow) {

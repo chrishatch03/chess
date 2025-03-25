@@ -1,5 +1,6 @@
 package ui;
 
+import java.util.Objects;
 import java.util.Scanner;
 
 import chess.*;
@@ -50,7 +51,7 @@ public class Repl {
                         result = gameplayClient.eval(userInput);
                     }
                 }
-                if (result != "" && !result.isEmpty()) {
+                if (!Objects.equals(result, "") && !result.isEmpty()) {
                     System.out.print(result);
                 }
             } catch (Throwable e) {
@@ -93,7 +94,7 @@ public class Repl {
     public void setPlayerColor(String newPlayerColor) {
         if (newPlayerColor == null) {
             this.playerColor = null;
-        } else if (newPlayerColor.trim().toLowerCase().equals("white")) {
+        } else if (newPlayerColor.trim().equalsIgnoreCase("white")) {
             this.playerColor = ChessGame.TeamColor.WHITE;
         } else {
             this.playerColor = ChessGame.TeamColor.BLACK;
