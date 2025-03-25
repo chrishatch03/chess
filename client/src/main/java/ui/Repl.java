@@ -3,16 +3,19 @@ package ui;
 import java.util.Scanner;
 
 import chess.*;
+import model.*;
 
 import static ui.EscapeSequences.*;
 
 public class Repl {
+    
     private final PreLoginUI preLoginClient;
     private final PostLoginUI postLoginClient;
     private final GameplayUI gameplayClient;
-    private String authToken = "";
-    private String username = "";
-    private Integer currentGame = null;
+
+    private String authToken = null;
+    private String username = null;
+    private GameData currentGame = null;
     private ChessGame.TeamColor playerColor = null;
 
     public Repl(String serverUrl) {
@@ -38,7 +41,7 @@ public class Repl {
             String userInput = scanner.nextLine();
             System.out.print(SET_TEXT_COLOR_BLACK);
             try {
-                if (authToken.isEmpty()) {
+                if (authToken == null || authToken.isEmpty()) {
                     result = preLoginClient.eval(userInput);
                 } else {
                     if (currentGame == null) {
@@ -75,12 +78,12 @@ public class Repl {
         this.username = newUsername;
     }
 
-    public Integer getCurrentGame() {
+    public GameData getCurrentGame() {
         return this.currentGame;
     }
 
-    public void setCurrentGame(Integer gameID) {
-        this.currentGame = gameID;
+    public void setCurrentGame(GameData newGame) {
+        this.currentGame = newGame;
     }
 
     public ChessGame.TeamColor getPlayerColor() {
@@ -88,7 +91,9 @@ public class Repl {
     }
 
     public void setPlayerColor(String newPlayerColor) {
-        if (newPlayerColor.trim().toLowerCase().equals("white")) {
+        if (newPlayerColor == null) {
+            this.playerColor = null;
+        } else if (newPlayerColor.trim().toLowerCase().equals("white")) {
             this.playerColor = ChessGame.TeamColor.WHITE;
         } else {
             this.playerColor = ChessGame.TeamColor.BLACK;
@@ -96,7 +101,8 @@ public class Repl {
     }
 
     private void printPrompt() {
-        System.out.print("\n" + RESET_BG_COLOR + SET_TEXT_COLOR_BLACK + ">>> " + SET_TEXT_COLOR_GREEN);
+        String authState = (authToken == null || authToken.isEmpty()) ? "[Logged Out] " : "[Logged In] ";
+        System.out.print("\n" + RESET_BG_COLOR + SET_TEXT_COLOR_BLACK + authState + ">>> " + SET_TEXT_COLOR_GREEN);
     }
 
 }

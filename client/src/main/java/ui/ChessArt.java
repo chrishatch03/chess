@@ -9,12 +9,9 @@ import static ui.EscapeSequences.*;
 
 public class ChessArt {
 
-    // Board dimensions.
     private static final int BOARD_SIZE_IN_SQUARES = 10;
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 3;
 
-    // My Colors
-    
     private static String BORDER_BG = SET_BG_COLOR_DARK_GREY;
     private static String BLACK_BG = SET_BG_COLOR_BLACK;
     private static String WHITE_BG = SET_BG_COLOR_WHITE;
@@ -23,9 +20,7 @@ public class ChessArt {
     private static String BLACK_TEXT = SET_TEXT_COLOR_BLUE;
     private static String WHITE_TEXT = SET_TEXT_COLOR_RED;
 
-    // Padded Characters in EscapeSequences.*
-
-
+    
     public static void draw(ChessBoard board, ChessGame.TeamColor playerColor) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
