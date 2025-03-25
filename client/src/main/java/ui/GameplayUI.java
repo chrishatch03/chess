@@ -4,6 +4,7 @@ package ui;
 import java.util.Arrays;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import exception.*;
 import server.ServerFacade;
 import model.*;
@@ -46,8 +47,8 @@ public class GameplayUI {
         }
     }
 
-    public void drawBoard(String playerColor, ChessBoard board) {
-        ChessArt.draw(board);
+    public void drawBoard(ChessGame.TeamColor playerColor, ChessBoard board) {
+        ChessArt.draw(board, playerColor);
     }
 
     // public void drawPerspective(ChessBoard board, String textColor, String bgColor, int startRow, int rowInc, int startCol, int colInc, String[] colTitles, String[] rowTitles) {

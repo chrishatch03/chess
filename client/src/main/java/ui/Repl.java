@@ -13,7 +13,7 @@ public class Repl {
     private String authToken = "";
     private String username = "";
     private Integer currentGame = null;
-    private String playerColor = null;
+    private ChessGame.TeamColor playerColor = null;
 
     public Repl(String serverUrl) {
         preLoginClient = new PreLoginUI(serverUrl, this);
@@ -83,12 +83,16 @@ public class Repl {
         this.currentGame = gameID;
     }
 
-    public String getPlayerColor() {
+    public ChessGame.TeamColor getPlayerColor() {
         return this.playerColor;
     }
 
     public void setPlayerColor(String newPlayerColor) {
-        this.playerColor = newPlayerColor.toLowerCase();
+        if (newPlayerColor.trim().toLowerCase().equals("white")) {
+            this.playerColor = ChessGame.TeamColor.WHITE;
+        } else {
+            this.playerColor = ChessGame.TeamColor.BLACK;
+        }
     }
 
     private void printPrompt() {
