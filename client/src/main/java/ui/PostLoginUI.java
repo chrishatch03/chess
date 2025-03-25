@@ -1,14 +1,12 @@
 package ui;
 
-import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;
+import static ui.EscapeSequences.*;
 
 import java.util.Arrays;
 import chess.ChessGame;
 import exception.*;
 import server.ServerFacade;
 import model.*;
-
-import static ui.EscapeSequences.*;
 
 public class PostLoginUI {
     private final ServerFacade server;
@@ -94,10 +92,10 @@ public class PostLoginUI {
                     gameId = game.gameID();
                 }
             }
-            if (gameId == null) throw new ResponseException(400, "Could not find the game you tried to join");
+            if (gameId == null) { throw new ResponseException(400, "Could not find the game you tried to join"); }
 
             var truePlayerColor = stringToPlayerColor(playerColor);
-            if (truePlayerColor == null) throw new ResponseException(400, "Could not convert " + playerColor + " to ChessGame.TeamColor");
+            if (truePlayerColor == null) { throw new ResponseException(400, "Could not convert " + playerColor + " to ChessGame.TeamColor"); }
             GameData alreadyJoinedExistingGame = rejoinGame(truePlayerColor, gameId, this.repl.getUsername());
             if (alreadyJoinedExistingGame != null) {
                 this.repl.setCurrentGame(alreadyJoinedExistingGame);
@@ -132,9 +130,8 @@ public class PostLoginUI {
         GameData game = getGame(gameId);
         if (game == null) { return null; }
 
-        if (game.whiteUsername() != null && game.whiteUsername().equals(userUsername) || game.blackUsername() != null && game.blackUsername().equals(userUsername)) {
-            return game;
-        }
+        if (game.whiteUsername() != null && game.whiteUsername().equals(userUsername)) { return game; }
+        if (game.blackUsername() != null && game.blackUsername().equals(userUsername)) { return game; }
 
         return null;
     }

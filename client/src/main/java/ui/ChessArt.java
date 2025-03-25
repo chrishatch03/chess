@@ -140,7 +140,7 @@ public class ChessArt {
     }
 
     private static String getPaddedPiece(ChessPiece piece) {
-        if (piece == null) return EMPTY;
+        if (piece == null) { return EMPTY; }
         ChessGame.TeamColor pieceColor = piece.getTeamColor();
         ChessPiece.PieceType pieceType = piece.getPieceType();
 
