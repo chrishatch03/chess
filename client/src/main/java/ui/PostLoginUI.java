@@ -95,7 +95,9 @@ public class PostLoginUI {
             if (gameId == null) { throw new ResponseException(400, "Could not find the game you tried to join"); }
 
             var truePlayerColor = stringToPlayerColor(playerColor);
-            if (truePlayerColor == null) { throw new ResponseException(400, playerColor + " invalid team color, only options are 'white' and 'black'"); }
+            if (truePlayerColor == null) { 
+                throw new ResponseException(400, playerColor + " invalid team color, only options are 'white' and 'black'"); 
+            }
             GameData alreadyJoinedExistingGame = rejoinGame(truePlayerColor, gameId, this.repl.getUsername());
             if (alreadyJoinedExistingGame != null) {
                 this.repl.setCurrentGame(alreadyJoinedExistingGame);
