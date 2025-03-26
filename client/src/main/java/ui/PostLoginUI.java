@@ -5,7 +5,6 @@ import static ui.EscapeSequences.*;
 import java.util.Arrays;
 import chess.ChessGame;
 import exception.*;
-import server.ServerFacade;
 import model.*;
 
 public class PostLoginUI {

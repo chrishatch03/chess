@@ -2,9 +2,10 @@ package client;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
+
 import exception.*;
 import server.Server;
-import server.ServerFacade;
+import ui.ServerFacade;
 import model.*;
 
 

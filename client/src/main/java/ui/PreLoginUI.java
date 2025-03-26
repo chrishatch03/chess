@@ -2,7 +2,6 @@ package ui;
 
 import java.util.Arrays;
 import exception.*;
-import server.ServerFacade;
 import model.*;
 import static ui.EscapeSequences.*;
 

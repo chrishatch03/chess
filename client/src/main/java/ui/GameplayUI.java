@@ -4,7 +4,6 @@ import java.util.Arrays;
 import chess.ChessBoard;
 import chess.ChessGame;
 import exception.*;
-import server.ServerFacade;
 import model.*;
 
 public class GameplayUI {
