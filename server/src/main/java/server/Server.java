@@ -158,8 +158,8 @@ public class Server {
             var userData = userService.get(authData.username());
             var joinGameRequest = serializer.fromJson(req.body(), JoinGameRequest.class);
             System.out.println("playerColor: " + joinGameRequest.playerColor());
-            if (!"white".equals(joinGameRequest.playerColor().toLowerCase()) &&
-                    !"black".equals(joinGameRequest.playerColor().toLowerCase())) {
+            if (!"white".equalsIgnoreCase(joinGameRequest.playerColor()) &&
+                    !"black".equalsIgnoreCase(joinGameRequest.playerColor())) {
                 throw new ResponseException(400, "Error: bad request - invalid team color");
             }
             if (joinGameRequest.gameID() == null) {
