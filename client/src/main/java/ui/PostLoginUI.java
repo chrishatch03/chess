@@ -83,6 +83,14 @@ public class PostLoginUI {
             Integer gameNum = Integer.valueOf(params[1]);
             
             if (gameNum == null || !this.games.containsKey(gameNum)) { return "Could not find game " + params[1]; }
+
+            var isObserver = (playerColor.toLowerCase().equals("observer")) ? true : false;
+            if (isObserver == true) {
+                GameData game = getGame(gameNum);
+                this.repl.setCurrentGame(game);
+                this.repl.setPlayerColor("white");
+                this.repl.setObserver(true);
+            }
             
             var truePlayerColor = stringToPlayerColor(playerColor);
             if (truePlayerColor == null) { 
@@ -101,7 +109,7 @@ public class PostLoginUI {
             this.repl.setPlayerColor(playerColor);
             return "";
         }
-        throw new ResponseException(400, "Expected: <playerColor> <gameId>");
+        throw new ResponseException(400, "Expected: <white/black/observer> <gameId>");
     }
 
     public GameData getGame(Integer gameId) {
@@ -159,7 +167,7 @@ public class PostLoginUI {
         return SET_TEXT_COLOR_BLUE + """
                 - list
                 - create <gameName>
-                - join <playerColor> <gameId>
+                - join <white/black/observer> <gameId>
                 - help
                 - logout
                 - clear

@@ -33,7 +33,7 @@ public class GameplayUI {
                 case "quit" -> quit();
                 case "clear" -> clearApp(params);
                 // case "logout" -> logout(params);
-                default -> help();
+                default -> help((this.repl.isObserver() == true) ? "observer" : "player");
             };
         } catch (ResponseException ex) {
             return ex.getMessage();
@@ -61,6 +61,7 @@ public class GameplayUI {
         // if (params.length > 0) {
             this.repl.setCurrentGame(null);
             this.repl.setPlayerColor(null);
+            this.repl.setObserver(false);
             return "";
         // }
     
@@ -80,18 +81,28 @@ public class GameplayUI {
     }
 
 
-    public static String help() {
-        return """
-        
-                - redraw
-                - makemove
-                - highlight
-                - help
-                - leave
-                - resign
-                - quit
-                - clear
-                """;
+    public static String help(String type) {
+        if (type.toLowerCase().equals("observer")) {
+            return """
+                    - redraw
+                    - help
+                    - leave
+                    - quit
+                    - clear
+                    """;
+        } else {
+            return """
+    
+                    - redraw
+                    - makemove
+                    - highlight
+                    - help
+                    - leave
+                    - resign
+                    - quit
+                    - clear
+                    """;
+        }
     }
 
 }

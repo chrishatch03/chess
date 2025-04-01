@@ -20,6 +20,11 @@ public class Repl implements ServerMessageHandler {
     private String username = null;
     private GameData currentGame = null;
     private ChessGame.TeamColor playerColor = null;
+    private boolean observer = false;
+
+    public enum GameValues {
+        OBSERVER
+    };
 
     public Repl(String serverUrl) {
         preLoginClient = new PreLoginUI(serverUrl, this);
@@ -39,7 +44,8 @@ public class Repl implements ServerMessageHandler {
                 ChessBoard blankBoard = new ChessBoard();
                 blankBoard.resetBoard();
                 gameplayClient.drawBoard(playerColor, blankBoard);
-                System.out.print(GameplayUI.help());
+                if (observer == true) { System.out.print(GameplayUI.help("observer")); }
+                else { System.out.print(GameplayUI.help("player")); }
             }
             printPrompt();
             String userInput = scanner.nextLine();
@@ -92,6 +98,14 @@ public class Repl implements ServerMessageHandler {
 
     public ChessGame.TeamColor getPlayerColor() {
         return this.playerColor;
+    }
+
+    public boolean isObserver() {
+        return this.observer;
+    }
+
+    public void setObserver(boolean value) {
+        this.observer = value;
     }
 
     public void setPlayerColor(String newPlayerColor) {
