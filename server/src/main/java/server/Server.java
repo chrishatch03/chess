@@ -8,6 +8,7 @@ import service.AuthService;
 import service.GameService;
 import service.UserService;
 import spark.*;
+import server.websocket.WebSocketHandler;
 
 public class Server {
 
@@ -15,9 +16,13 @@ public class Server {
     private final AuthService authService;
     private final GameService gameService;
 
+    private final WebSocketHandler webSocketHandler;
     private final Gson serializer = new Gson();
 
     public Server() {
+
+        webSocketHandler = new WebSocketHandler();
+
         UserService tempUserService = null;
         AuthService tempAuthService = null;
         GameService tempGameService = null;
@@ -54,6 +59,9 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/ws", webSocketHandler);
+
         Spark.delete("/db", this::clearApp);
         Spark.post("/user", this::register);
         Spark.post("/session", this::login);

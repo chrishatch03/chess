@@ -3,6 +3,8 @@ package ui;
 import static ui.EscapeSequences.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
+
 import chess.ChessGame;
 import exception.*;
 import model.*;
@@ -10,6 +12,7 @@ import model.*;
 public class PostLoginUI {
     private final ServerFacade server;
     private final Repl repl;
+    private HashMap<Integer, GameData> games = new HashMap<>();
 
     public PostLoginUI(String serverUrl, Repl repl) {
         server = new ServerFacade(serverUrl);
@@ -27,6 +30,7 @@ public class PostLoginUI {
                 case "list" -> listGames(params);
                 case "join" -> joinGame(params);
                 case "clear" -> clearApp(params);
+                case "quit" -> quit();
                 default -> help();
             };
         } catch (ResponseException ex) {
@@ -55,55 +59,44 @@ public class PostLoginUI {
 
     public String listGames(String... params) throws ResponseException {
         if (params.length == 0) {
+            this.games = new HashMap<>();
             var games = server.listGames(repl.getAuthToken()).games();
-            StringBuilder output = new StringBuilder(SET_TEXT_COLOR_WHITE + "Games Available:\n");
+            StringBuilder output = new StringBuilder(SET_TEXT_COLOR_WHITE + "Games Available: \n" + SET_TEXT_COLOR_BLACK + "to join a game enter command \">>> join <white/black/observer> <game number>\" \n" + RESET_TEXT_COLOR);
+            int gameNum = 1;
             for (GameData currentGame : games) {
-                output.append("Game ").append(currentGame.gameID().toString()).append(": ").append(currentGame.gameName());
-
-                String status = getStatus(currentGame);
-
-                output.append("  -->   Available: ").append(status).append("\n");
+                this.games.put(gameNum, currentGame);
+                output.append("\nGame ").append(String.valueOf(gameNum)).append(": ").append(currentGame.gameName());
+                String white = (currentGame.whiteUsername() == null || currentGame.whiteUsername().isEmpty()) ? "available" : currentGame.whiteUsername();
+                String black = (currentGame.blackUsername() == null || currentGame.blackUsername().isEmpty()) ? "available" : currentGame.blackUsername();
+                output.append("    white: ").append(white).append("  black: ").append(black);
+                gameNum++;
             }
             return output.toString();
         }
         throw new ResponseException(400, "Expected no params for 'list'");
     }
 
-    private static String getStatus(GameData currentGame) {
-        String status;
-        boolean whiteAvailable = currentGame.whiteUsername() == null || currentGame.whiteUsername().isEmpty();
-        boolean blackAvailable = currentGame.blackUsername() == null || currentGame.blackUsername().isEmpty();
-        if (whiteAvailable && blackAvailable) { status = "white, black"; }
-        else if (whiteAvailable) { status = "white"; }
-        else if (blackAvailable) { status = "black"; }
-        else { status = "full"; }
-        return status;
-    }
-
     public String joinGame(String... params) throws ResponseException {
         if (params.length == 2) {
             var playerColor = params[0];
-            var games = server.listGames(repl.getAuthToken()).games();
-            String gameName = String.valueOf(params[1]).trim().toLowerCase();
-            Integer gameId = null;
-            for (GameData game : games) {
-                if (game.gameName().toLowerCase().equals(gameName)) {
-                    gameId = game.gameID();
-                }
-            }
-            if (gameId == null) { throw new ResponseException(400, "Could not find the game you tried to join"); }
-
+            // var games = server.listGames(repl.getAuthToken()).games();
+            Integer gameNum = Integer.valueOf(params[1]);
+            
+            if (gameNum == null || !this.games.containsKey(gameNum)) { return "Could not find game " + params[1]; }
+            
             var truePlayerColor = stringToPlayerColor(playerColor);
             if (truePlayerColor == null) { 
                 throw new ResponseException(400, playerColor + " invalid team color, only options are 'white' and 'black'"); 
             }
-            GameData alreadyJoinedExistingGame = rejoinGame(truePlayerColor, gameId, this.repl.getUsername());
+
+            GameData alreadyJoinedExistingGame = rejoinGame(truePlayerColor, this.games.get(gameNum).gameID(), this.repl.getUsername());
             if (alreadyJoinedExistingGame != null) {
                 this.repl.setCurrentGame(alreadyJoinedExistingGame);
+                this.repl.setPlayerColor(playerColor);
             }
 
-            server.joinGame(new JoinGameRequest(playerColor, gameId), repl.getAuthToken()).toString();
-            GameData newGame = getGame(gameId);
+            server.joinGame(new JoinGameRequest(playerColor, this.games.get(gameNum).gameID()), repl.getAuthToken()).toString();
+            GameData newGame = getGame(this.games.get(gameNum).gameID());
             this.repl.setCurrentGame(newGame);
             this.repl.setPlayerColor(playerColor);
             return "";
@@ -158,9 +151,11 @@ public class PostLoginUI {
         throw new ResponseException(400, "Expected no params for clear");
     }
 
+    public String quit() {
+        return "quit";
+    }
 
-
-    public String help() {
+    public static String help() {
         return SET_TEXT_COLOR_BLUE + """
                 - list
                 - create <gameName>

@@ -5,10 +5,12 @@ import java.util.Scanner;
 
 import chess.*;
 import model.*;
+import ui.websocket.ServerMessageHandler;
+import websocket.messages.ServerMessage;
 
 import static ui.EscapeSequences.*;
 
-public class Repl {
+public class Repl implements ServerMessageHandler {
     
     private final PreLoginUI preLoginClient;
     private final PostLoginUI postLoginClient;
@@ -32,11 +34,12 @@ public class Repl {
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (!result.equals("quit")) {
+        while (!result.trim().equals("quit")) {
             if (currentGame != null) {
                 ChessBoard blankBoard = new ChessBoard();
                 blankBoard.resetBoard();
                 gameplayClient.drawBoard(playerColor, blankBoard);
+                System.out.print(GameplayUI.help());
             }
             printPrompt();
             String userInput = scanner.nextLine();
@@ -104,6 +107,11 @@ public class Repl {
     private void printPrompt() {
         String authState = (authToken == null || authToken.isEmpty()) ? "[Logged Out] " : "[Logged In] ";
         System.out.print("\n" + RESET_BG_COLOR + SET_TEXT_COLOR_BLACK + authState + ">>> " + SET_TEXT_COLOR_GREEN);
+    }
+
+    public void notify(ServerMessage message) {
+        System.out.println(SET_TEXT_COLOR_RED + message.getServerMessageType());
+        printPrompt();
     }
 
 }

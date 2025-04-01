@@ -22,6 +22,7 @@ public class PreLoginUI {
             return switch (cmd) {
                 case "login" -> login(params);
                 case "register" -> register(params);
+                case "quit" -> quit();
                 default -> help();
             };
         } catch (ResponseException ex) {
@@ -52,9 +53,13 @@ public class PreLoginUI {
             }
             repl.setAuthToken(authData.authToken());
             repl.setUsername(authData.username());
-            return "Logged in user " + authData.username();
+            return "Logged in user " + authData.username() + "\n" + PostLoginUI.help();
         }
         throw new ResponseException(400, "Expected: <username> <password>");
+    }
+
+    public String quit() {
+        return "quit";
     }
 
     public String help() {

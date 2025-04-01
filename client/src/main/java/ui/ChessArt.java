@@ -62,6 +62,7 @@ public class ChessArt {
             if (playerColor == ChessGame.TeamColor.WHITE) {
 
                 for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
+                    setBorder(out);
                     printSquareRow(out, squareRow, columnLabels[boardCol], BORDER_BG, BORDER_TEXT);
                 }
 
@@ -169,14 +170,14 @@ public class ChessArt {
             };
         } else {
             return switch (rowNum) {
-                case 8 -> ROW1;
-                case 7 -> ROW2;
-                case 6 -> ROW3;
-                case 5 -> ROW4;
-                case 4 -> ROW5;
-                case 3 -> ROW6;
-                case 2 -> ROW7;
-                case 1 -> ROW8;
+                case 1 -> ROW1;
+                case 2 -> ROW2;
+                case 3 -> ROW3;
+                case 4 -> ROW4;
+                case 5 -> ROW5;
+                case 6 -> ROW6;
+                case 7 -> ROW7;
+                case 8 -> ROW8;
                 default -> EMPTY;
             };
         }
