@@ -1,14 +1,17 @@
 package ui;
 
 import java.util.Arrays;
+
 import chess.ChessBoard;
 import chess.ChessGame;
 import exception.*;
 import model.*;
+import ui.websocket.WebSocketFacade;
 
 public class GameplayUI {
     private final ServerFacade server;
     private final Repl repl;
+    private WebSocketFacade ws;
 
 
     public GameplayUI(String serverUrl, Repl repl) {
@@ -22,8 +25,13 @@ public class GameplayUI {
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
+                case "redraw" -> drawBoard(this.repl.getPlayerColor(), this.repl.getCurrentGame().game().getBoard());
+                case "makemove" -> makeMove(params);
+                case "highlight" -> highlightLegalMoves(params);
+                case "leave" -> leaveGame(params);
+                case "resign" -> resign(params);
+                case "quit" -> quit();
                 case "clear" -> clearApp(params);
-                case "back" -> backToPostLogin(params);
                 // case "logout" -> logout(params);
                 default -> help();
             };
@@ -32,8 +40,9 @@ public class GameplayUI {
         }
     }
 
-    public void drawBoard(ChessGame.TeamColor playerColor, ChessBoard board) {
+    public String drawBoard(ChessGame.TeamColor playerColor, ChessBoard board) {
         ChessArt.draw(board, playerColor);
+        return "";
     }
 
     public String clearApp(String... params) throws ResponseException {
@@ -44,23 +53,44 @@ public class GameplayUI {
         throw new ResponseException(400, "Expected no params for clear");
     }
 
-    public String backToPostLogin(String... params) throws ResponseException {
-        if (params.length > 0) {
+    public String highlightLegalMoves(String ... params) throws ResponseException {
+        return "";
+    }
+
+    public String leaveGame(String... params) throws ResponseException {
+        // if (params.length > 0) {
             this.repl.setCurrentGame(null);
             this.repl.setPlayerColor(null);
             return "";
-        }
-        throw new ResponseException(400, "Expected no parameters for back.");
+        // }
+    
+        // throw new ResponseException(400, "Expected no parameters for back.");
+    }
+
+    public String makeMove(String... params) throws ResponseException {
+        return "";
+    }
+
+    public String resign(String... params) throws ResponseException {
+        return "";
+    }
+
+    public String quit() {
+        return "quit";
     }
 
 
-    public String help() {
+    public static String help() {
         return """
-                - commands to come in phase 6
+        
+                - redraw
+                - makemove
+                - highlight
                 - help
-                - logout
-                - clear
+                - leave
+                - resign
                 - quit
+                - clear
                 """;
     }
 
