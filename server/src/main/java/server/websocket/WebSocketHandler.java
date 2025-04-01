@@ -35,23 +35,23 @@ public class WebSocketHandler {
         connections.add(authToken, session);
         // var message = String.format("%s is in the shop", authToken);
         var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-        connections.broadcast(authToken, notification);
+        connections.broadcastExclude(authToken, notification);
     }
 
     private void exit(String authToken) throws IOException {
         connections.remove(authToken);
         // var message = String.format("%s left the shop", authToken);
         var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-        connections.broadcast(authToken, notification);
+        connections.broadcastExclude(authToken, notification);
     }
 
     private void makeMove(String authToken, ChessBoard newBoard) throws IOException {
         var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-        connections.broadcast(authToken, notification);
+        connections.broadcastExclude(authToken, notification);
     }
 
     private void resign(String authToken) throws IOException {
-        connections.broadcast(authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION));
+        connections.broadcastExclude(authToken, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION));
     }
 
     // public void makeNoise(String petName, String sound) throws ResponseException {
