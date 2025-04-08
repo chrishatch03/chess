@@ -69,7 +69,8 @@ public class Server {
         Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
-
+        Spark.put("/update", this::updateGame);
+        
         Spark.exception(ResponseException.class, this::exceptionHandler);
 
         Spark.awaitInitialization();
@@ -168,6 +169,9 @@ public class Server {
             System.out.println("playerColor: " + joinGameRequest.playerColor());
             if (!"white".equalsIgnoreCase(joinGameRequest.playerColor()) &&
                     !"black".equalsIgnoreCase(joinGameRequest.playerColor())) {
+                        // if ("observer".equalsIgnoreCase(joinGameRequest.playerColor())) {
+                        //     // 
+                        // }
                 throw new ResponseException(400, "Error: bad request - invalid team color");
             }
             if (joinGameRequest.gameID() == null) {
@@ -177,6 +181,46 @@ public class Server {
             gameService.joinGame(joinGameRequest, userData);
             return sendResponse(req,res,new EmptyResponse());
     }
+
+    private Object updateGame(Request req, Response res) throws ResponseException {
+        var authToken = req.headers("Authorization");
+        if (authToken == null || authToken.isEmpty()) {
+            throw new ResponseException(401, "Error: unauthorized");
+        }
+        var authData = authService.sessionExists(authToken);
+        var userData = userService.get(authData.username());
+        UpdateGameRequest request = serializer.fromJson(req.body(), UpdateGameRequest.class);
+        System.out.println("playerColor: " + request.playerColor());
+        if (!"white".equalsIgnoreCase(request.playerColor()) &&
+                !"black".equalsIgnoreCase(request.playerColor())) {
+            throw new ResponseException(400, "Error: bad request - invalid team color");
+        }
+        if (request.gameID() == null) {
+            throw new ResponseException(400, "Error: bad request - invalid game ID");
+        }
+        gameService.get(request.gameID());
+        gameService.updateGame(request, userData);
+        return sendResponse(req,res,new EmptyResponse());
+    }
+
+    // private Object observeGame(Request req, Response res) throws ResponseException {
+    //     var authToken = req.headers("Authorization:");
+    //     if (authToken == null == authToken.isEmpty()) {
+    //         throw new ResponseException(401, "Error: unauthorized");
+    //     }
+    //     var authData = authService.sessionExists(authToken);
+    //     var userData = userService.get(authData.username());
+    //     JoinGameRequest request = serializer.fromJson(req.body(), JoinGameRequest.class);
+    //     System.out.println("observing game: " + request.playerColor());
+    //     if (!"observer".equalsIgnoreCase(request.playerColor())) {
+    //         throw new ResponseException(400, "Error: bad request - failed to join game as observer");
+    //     }
+    //     if (request.gameID() == null) {
+    //         throw new ResponseException(400, "Error: bad request - invalid game ID");
+    //     }
+    //     GameData game = gameService.get(request.gameID());
+    //     return sendResponse(req,res,game);
+    // }
 
 //    Clear Entire Application
     private Object clearApp(Request req, Response res) throws ResponseException {

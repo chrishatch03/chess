@@ -4,8 +4,11 @@ import dataaccess.GameDAO;
 import model.GameData;
 import exception.ResponseException;
 import model.JoinGameRequest;
+import model.UpdateGameRequest;
 import model.UserData;
 import java.util.Collection;
+
+import chess.ChessGame;
 
 public class GameService {
 
@@ -44,6 +47,37 @@ public class GameService {
             } else {
                 throw new ResponseException(400, "Error: bad request");
             }
+        } catch (DataAccessException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+    
+    public GameData updateGame(UpdateGameRequest request, UserData userData) throws ResponseException {
+        try {
+            GameData gameData = gameDAO.get(request.gameID());
+            if (gameData == null) {
+                throw new ResponseException(500, "Error: game doesn't exist");
+            }
+            // is the user in the game
+            if (request.playerColor().toLowerCase().equals("white")) {
+                if (gameData.whiteUsername() == null || !gameData.whiteUsername().equalsIgnoreCase(userData.username())) {
+                    throw new ResponseException(403, "Error: bad request - white username doesn't match request playerColor");
+                }
+            } else if (request.playerColor().toLowerCase().equals("black")) {
+                if (gameData.blackUsername() == null || !gameData.blackUsername().equalsIgnoreCase(userData.username())) {
+                    throw new ResponseException(403, "Error: bad request - black username doesn't match request playerColor");
+                }
+            } 
+            GameData updatedGame = new GameData(
+            gameData.gameID(),
+            gameData.whiteUsername(),
+            gameData.blackUsername(),
+            gameData.gameName(),
+            request.game()
+        );
+
+        return gameDAO.update(gameData.gameID(), updatedGame);
+
         } catch (DataAccessException ex) {
             throw new ResponseException(500, ex.getMessage());
         }

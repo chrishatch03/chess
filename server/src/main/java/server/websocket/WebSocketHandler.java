@@ -24,21 +24,22 @@ public class WebSocketHandler {
     public void onMessage(Session session, String message) throws IOException {
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
         switch (command.getCommandType()) {
-            case CONNECT -> connect(command.getAuthToken(), session);
-            case LEAVE -> exit(command.getAuthToken());
+            case CONNECT -> connectToGame(command, session);
+            case LEAVE -> exitGame(command.getAuthToken());
             case MAKE_MOVE -> makeMove(command.getAuthToken(), new ChessBoard());
             case RESIGN -> resign(command.getAuthToken());
         }
     }
 
-    private void connect(String authToken, Session session) throws IOException {
-        connections.add(authToken, session);
-        // var message = String.format("%s is in the shop", authToken);
+    private void connectToGame(UserGameCommand command, Session session) throws IOException {
+        System.out.println("Message received: CONNECT");
+        connections.add(command.getAuthToken(), session, command.getGameID());
         var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-        connections.broadcastExclude(authToken, notification);
+        connections.broadcastExclude(command.getAuthToken(), notification);
+        System.out.println("Message sent: unknown rn is this what websocket messages are for?");
     }
 
-    private void exit(String authToken) throws IOException {
+    private void exitGame(String authToken) throws IOException {
         connections.remove(authToken);
         // var message = String.format("%s left the shop", authToken);
         var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);

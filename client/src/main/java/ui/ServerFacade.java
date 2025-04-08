@@ -48,6 +48,12 @@ public class ServerFacade {
         if (authToken.isEmpty()) { throw new ResponseException(400, "Invalid joinGame request: authToken was null"); }
         return this.makeRequest("PUT", path, joinGameRequest, EmptyResponse.class, authToken);
     }
+
+    public Object updateGame(UpdateGameRequest request, String authToken) throws ResponseException {
+        var path = "/update";
+        if (authToken.isEmpty()) { throw new ResponseException(400, "Invalid updateGame request: authToken was null"); }
+        return this.makeRequest("PUT", path, request, EmptyResponse.class, authToken);
+    }
     
     public EmptyResponse clearApp(EmptyRequest emptyRequest) throws ResponseException {
         var path = "/db";
