@@ -40,7 +40,12 @@ public class GameService {
                 GameData updatedGameData = gameDAO.update(gameData.gameID(), new GameData(gameData.gameID(),
                         userData.username(), gameData.blackUsername(), gameData.gameName(), gameData.game()));
                         if (updatedGameData.game() == null) {
-                            gameDAO.update(updatedGameData.gameID(), new GameData(updatedGameData.gameID(), updatedGameData.whiteUsername(), updatedGameData.blackUsername(), updatedGameData.gameName(), new ChessGame()));
+                            gameDAO.update(updatedGameData.gameID(),
+                                    new GameData(updatedGameData.gameID(),
+                                    updatedGameData.whiteUsername(),
+                                            updatedGameData.blackUsername(),
+                                    updatedGameData.gameName(),
+                                    new ChessGame()));
                         }
                         return gameDAO.get(joinGameRequest.gameID());
             } else if (joinGameRequest.playerColor().toLowerCase().equals("black")) {
@@ -50,7 +55,12 @@ public class GameService {
                 GameData updatedGameData = gameDAO.update(gameData.gameID(), new GameData(gameData.gameID(),
                         gameData.whiteUsername(), userData.username(), gameData.gameName(), gameData.game()));
                         if (updatedGameData.game() == null) {
-                            gameDAO.update(updatedGameData.gameID(), new GameData(updatedGameData.gameID(), updatedGameData.whiteUsername(), updatedGameData.blackUsername(), updatedGameData.gameName(), new ChessGame()));
+                            gameDAO.update(updatedGameData.gameID(),
+                                    new GameData(updatedGameData.gameID(),
+                                            updatedGameData.whiteUsername(),
+                                            updatedGameData.blackUsername(),
+                                            updatedGameData.gameName(),
+                                            new ChessGame()));
                         }
                         return gameDAO.get(joinGameRequest.gameID());
             } else {

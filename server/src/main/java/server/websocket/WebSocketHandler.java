@@ -120,21 +120,27 @@ public class WebSocketHandler {
             playerColor = "black";
         } else {
             connections.remove(command.getAuthToken());
-            Notification notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, "Observer " + authData.username() + " left the game");
+            Notification notification =
+                    new Notification(ServerMessage.ServerMessageType.NOTIFICATION,
+                            "Observer " + authData.username() + " left the game");
             connections.broadcastExclude(command.getAuthToken(), command.getGameID(), notification);
             return;
         }
     
         if (playerColor.equals("white")) {
             gameService.updateGame(new UpdateGameRequest(playerColor, command.getGameID(),
-                new GameData(command.getGameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game())), userData);
+                new GameData(command.getGameID(), null, gameData.blackUsername(), gameData.gameName(),
+                        gameData.game())), userData);
         } else {
             gameService.updateGame(new UpdateGameRequest(playerColor, command.getGameID(),
-                new GameData(command.getGameID(), gameData.whiteUsername(), null, gameData.gameName(), gameData.game())), userData);
+                new GameData(command.getGameID(), gameData.whiteUsername(), null, gameData.gameName(),
+                        gameData.game())), userData);
         }
     
         connections.remove(command.getAuthToken());
-        Notification notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, "Player " + authData.username() + " left the game");
+        Notification notification =
+                new Notification(ServerMessage.ServerMessageType.NOTIFICATION,
+                        "Player " + authData.username() + " left the game");
         connections.broadcastExclude(command.getAuthToken(), command.getGameID(), notification);
     }
     
@@ -161,14 +167,15 @@ public class WebSocketHandler {
         else if (authData.username().equals(game.blackUsername())) { playerColor = "black"; }
         else { throw new ResponseException(403, "Error: bad request - invalid TeamColor "); }
 
-        if (playerColor == null || !playerColor.equalsIgnoreCase("white") && !playerColor.equalsIgnoreCase("black")) {
+        if (playerColor == null || !playerColor.equalsIgnoreCase("white") &&
+                !playerColor.equalsIgnoreCase("black")) {
             throw new ResponseException(403, "Error: bad request - invalid TeamColor " + playerColor);
         }
 
         ChessGame.TeamColor playerTeamColor;
         if (playerColor.equalsIgnoreCase("white")) {playerTeamColor = ChessGame.TeamColor.WHITE;}
         else if (playerColor.equalsIgnoreCase("black")) {playerTeamColor = ChessGame.TeamColor.BLACK;}
-        else { throw new ResponseException(500, "Error: somehow the playerColor still is different than white/black, this line of code should never be read."); }
+        else { throw new ResponseException(500, "Error: somehow the playerColor still is different than white/black"); }
         
         if (game.game().isInCheckmate(playerTeamColor)) {
             throw new ResponseException(400, "Error: game is over");
@@ -179,11 +186,14 @@ public class WebSocketHandler {
             throw new ResponseException(400, "Error: invalid Move");
         }
 
-        GameData newGameData = gameService.makeMove(authData.username(), playerColor, command.getGameID(), command.move, userData);
+        GameData newGameData = gameService.makeMove(authData.username(),
+                playerColor, command.getGameID(), command.move, userData);
         
         var loadMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, newGameData);
         connections.broadcastToGame(command.getGameID(), loadMessage);
-        var notification = new Notification(ServerMessageType.NOTIFICATION, authData.username() + " moved from " + printMove(command.move));
+        var notification = new
+                Notification(ServerMessageType.NOTIFICATION,
+                authData.username() + " moved from " + printMove(command.move));
         connections.broadcastExclude(command.getAuthToken(), command.getGameID(), notification);
     }
 

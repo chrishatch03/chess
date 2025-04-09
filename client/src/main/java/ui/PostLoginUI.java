@@ -53,7 +53,8 @@ public class PostLoginUI {
     public String createGame(String... params) throws ResponseException {
         if (params.length == 1) {
             var gameName = params[0];
-            return "Created game: " + server.createGame(new CreateGameRequest(gameName), repl.getAuthToken()).gameID().toString();
+            return "Created game: " + server.createGame(new CreateGameRequest(gameName),
+                    repl.getAuthToken()).gameID().toString();
         }
         throw new ResponseException(400, "Expected: <gameName>");
     }
@@ -62,13 +63,16 @@ public class PostLoginUI {
         if (params.length == 0) {
             this.games = new HashMap<>();
             var games = server.listGames(repl.getAuthToken()).games();
-            StringBuilder output = new StringBuilder(SET_TEXT_COLOR_WHITE + "Games Available: \n" + SET_TEXT_COLOR_BLACK + "to join a game enter command \">>> join <white/black/observer> <game number>\" \n" + RESET_TEXT_COLOR);
+            StringBuilder output = new StringBuilder(SET_TEXT_COLOR_WHITE + "Games Available: \n" + SET_TEXT_COLOR_BLACK
+                    + "to join a game enter command \">>> join <white/black/observer> <game number>\" \n" + RESET_TEXT_COLOR);
             int gameNum = 1;
             for (GameData currentGame : games) {
                 this.games.put(gameNum, currentGame);
                 output.append("\nGame ").append(gameNum).append(": ").append(currentGame.gameName());
-                String white = (currentGame.whiteUsername() == null || currentGame.whiteUsername().isEmpty()) ? "available" : currentGame.whiteUsername();
-                String black = (currentGame.blackUsername() == null || currentGame.blackUsername().isEmpty()) ? "available" : currentGame.blackUsername();
+                String white = (currentGame.whiteUsername() == null || currentGame.whiteUsername().isEmpty()) ?
+                        "available" : currentGame.whiteUsername();
+                String black = (currentGame.blackUsername() == null || currentGame.blackUsername().isEmpty()) ?
+                        "available" : currentGame.blackUsername();
                 output.append("    white: ").append(white).append("  black: ").append(black);
                 gameNum++;
             }
@@ -97,10 +101,12 @@ public class PostLoginUI {
             
             var truePlayerColor = stringToPlayerColor(playerColor);
             if (truePlayerColor == null) { 
-                throw new ResponseException(400, playerColor + " invalid team color, only options are 'white' and 'black', unless you are an 'observer'"); 
+                throw new ResponseException(400, playerColor +
+                        " invalid team color, only options are 'white' and 'black', unless you are an 'observer'");
             }
 
-            GameData alreadyJoinedExistingGame = rejoinGame(truePlayerColor, this.games.get(gameNum).gameID(), this.repl.getUsername());
+            GameData alreadyJoinedExistingGame = rejoinGame(truePlayerColor,
+                    this.games.get(gameNum).gameID(), this.repl.getUsername());
             if (alreadyJoinedExistingGame != null) {
                 this.repl.setCurrentGame(alreadyJoinedExistingGame);
                 this.repl.setPlayerColor(playerColor);
@@ -108,7 +114,8 @@ public class PostLoginUI {
                 return "";
             }
 
-            server.joinGame(new JoinGameRequest(playerColor, this.games.get(gameNum).gameID()), repl.getAuthToken()).toString();
+            server.joinGame(new JoinGameRequest(playerColor, this.games.get(gameNum).gameID()),
+                    repl.getAuthToken()).toString();
             GameData newGame = getGame(this.games.get(gameNum).gameID());
             this.repl.setCurrentGame(newGame);
             this.repl.setPlayerColor(playerColor);
