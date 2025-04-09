@@ -33,41 +33,51 @@ public class GameService {
             if (gameData == null) {
                 throw new ResponseException(500, "Error: game doesn't exist");
             }
-            if (joinGameRequest.playerColor().toLowerCase().equals("white")) {
-                if (gameData.whiteUsername() != null) {
+
+            String color = joinGameRequest.playerColor().toLowerCase();
+            String newWhiteUsername = gameData.whiteUsername();
+            String newBlackUsername = gameData.blackUsername();
+
+            if ("white".equals(color)) {
+                if (newWhiteUsername != null) {
                     throw new ResponseException(403, "Error: already taken");
                 }
-                GameData updatedGameData = gameDAO.update(gameData.gameID(), new GameData(gameData.gameID(),
-                        userData.username(), gameData.blackUsername(), gameData.gameName(), gameData.game()));
-                        if (updatedGameData.game() == null) {
-                            gameDAO.update(updatedGameData.gameID(),
-                                    new GameData(updatedGameData.gameID(),
-                                    updatedGameData.whiteUsername(),
-                                            updatedGameData.blackUsername(),
-                                    updatedGameData.gameName(),
-                                    new ChessGame()));
-                        }
-                        return gameDAO.get(joinGameRequest.gameID());
-            } else if (joinGameRequest.playerColor().toLowerCase().equals("black")) {
-                if (gameData.blackUsername() != null) {
+                newWhiteUsername = userData.username();
+            } else if ("black".equals(color)) {
+                if (newBlackUsername != null) {
                     throw new ResponseException(403, "Error: already taken");
                 }
-                GameData updatedGameData = gameDAO.update(gameData.gameID(), new GameData(gameData.gameID(),
-                        gameData.whiteUsername(), userData.username(), gameData.gameName(), gameData.game()));
-                        if (updatedGameData.game() == null) {
-                            gameDAO.update(updatedGameData.gameID(),
-                                    new GameData(updatedGameData.gameID(),
-                                            updatedGameData.whiteUsername(),
-                                            updatedGameData.blackUsername(),
-                                            updatedGameData.gameName(),
-                                            new ChessGame()));
-                        }
-                        return gameDAO.get(joinGameRequest.gameID());
+                newBlackUsername = userData.username();
             } else {
                 throw new ResponseException(400, "Error: bad request");
             }
+
+            // Perform the update using a common method
+            updateGameWithNewPlayer(gameData.gameID(), newWhiteUsername, newBlackUsername, gameData);
+
+            return gameDAO.get(joinGameRequest.gameID());
         } catch (DataAccessException ex) {
             throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
+    private void updateGameWithNewPlayer(Integer gameID, String whiteUsername, String blackUsername, GameData gameData)
+            throws DataAccessException {
+        GameData updatedGameData = gameDAO.update(gameID, new GameData(
+                gameData.gameID(),
+                whiteUsername,
+                blackUsername,
+                gameData.gameName(),
+                gameData.game()
+        ));
+        if (updatedGameData.game() == null) {
+            gameDAO.update(gameID, new GameData(
+                    gameData.gameID(),
+                    whiteUsername,
+                    blackUsername,
+                    gameData.gameName(),
+                    new ChessGame()
+            ));
         }
     }
 
