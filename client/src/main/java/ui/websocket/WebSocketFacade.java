@@ -1,16 +1,18 @@
 package ui.websocket;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import chess.ChessMove;
 import exception.ResponseException;
+import websocket.commands.MoveCommand;
 import websocket.commands.UserGameCommand;
-import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-//need to extend Endpoint for websocket to work properly
 public class WebSocketFacade extends Endpoint {
 
     Session session;
@@ -28,10 +30,10 @@ public class WebSocketFacade extends Endpoint {
 
             //set message handler
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
-                @Override
+                 @Override
                 public void onMessage(String message) {
-                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                    serverMessageHandler.notify(serverMessage);
+                    JsonObject jsonObject = new Gson().fromJson(message, com.google.gson.JsonObject.class);
+                    serverMessageHandler.notify(jsonObject);
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
@@ -39,7 +41,6 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    //Endpoint requires this method, but you don't have to do anything
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
@@ -48,7 +49,6 @@ public class WebSocketFacade extends Endpoint {
         try {
             var userGameCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
-            System.out.println("Message sent to websocket: CONNECT");
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
@@ -58,7 +58,24 @@ public class WebSocketFacade extends Endpoint {
         try {
             var userGameCommand = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
-            this.session.close();
+        } catch (IOException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+    
+    public void makeMove(String authToken, Integer gameID, String playerColor, ChessMove move) throws ResponseException {
+        try {
+            var userGameCommand = new MoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, move);
+            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
+        } catch (IOException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+    
+    public void resign(String authToken, Integer gameID) throws ResponseException {
+        try {
+            var userGameCommand = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }

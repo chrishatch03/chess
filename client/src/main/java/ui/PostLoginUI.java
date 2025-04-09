@@ -1,22 +1,23 @@
 package ui;
 
 import static ui.EscapeSequences.*;
-
 import java.util.Arrays;
 import java.util.HashMap;
-
 import chess.ChessGame;
 import exception.*;
 import model.*;
+import ui.websocket.WebSocketFacade;
 
 public class PostLoginUI {
     private final ServerFacade server;
     private final Repl repl;
     private HashMap<Integer, GameData> games = new HashMap<>();
+    private final WebSocketFacade ws;
 
-    public PostLoginUI(String serverUrl, Repl repl) {
+    public PostLoginUI(String serverUrl, Repl repl, WebSocketFacade ws) throws ResponseException {
         server = new ServerFacade(serverUrl);
         this.repl = repl;
+        this.ws = ws;
     }
 
     public String eval(String input) {
@@ -90,23 +91,28 @@ public class PostLoginUI {
                 this.repl.setCurrentGame(game);
                 this.repl.setPlayerColor("white");
                 this.repl.setObserver(true);
+                ws.connectToGame(gameNum, this.repl.getAuthToken());
+                return "";
             }
             
             var truePlayerColor = stringToPlayerColor(playerColor);
             if (truePlayerColor == null) { 
-                throw new ResponseException(400, playerColor + " invalid team color, only options are 'white' and 'black'"); 
+                throw new ResponseException(400, playerColor + " invalid team color, only options are 'white' and 'black', unless you are an 'observer'"); 
             }
 
             GameData alreadyJoinedExistingGame = rejoinGame(truePlayerColor, this.games.get(gameNum).gameID(), this.repl.getUsername());
             if (alreadyJoinedExistingGame != null) {
                 this.repl.setCurrentGame(alreadyJoinedExistingGame);
                 this.repl.setPlayerColor(playerColor);
+                ws.connectToGame(gameNum, this.repl.getAuthToken());
+                return "";
             }
 
             server.joinGame(new JoinGameRequest(playerColor, this.games.get(gameNum).gameID()), repl.getAuthToken()).toString();
             GameData newGame = getGame(this.games.get(gameNum).gameID());
             this.repl.setCurrentGame(newGame);
             this.repl.setPlayerColor(playerColor);
+            ws.connectToGame(gameNum, this.repl.getAuthToken());
             return "";
         }
         throw new ResponseException(400, "Expected: <white/black/observer> <gameId>");

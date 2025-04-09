@@ -1,7 +1,7 @@
 package ui.websocket;
 
-import websocket.messages.*;
+import com.google.gson.JsonObject;
 
 public interface ServerMessageHandler {
-    void notify(ServerMessage serverMessage);
+    void notify(JsonObject serverMessage);
 }

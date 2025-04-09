@@ -23,7 +23,7 @@ public class ChessArt {
     
     public static void draw(ChessBoard board, ChessGame.TeamColor playerColor) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-
+        out.print("\n");
         out.print(ERASE_SCREEN);
         out.print(SET_TEXT_BOLD);
 
@@ -36,7 +36,6 @@ public class ChessArt {
 
 
     private static void drawChessBoard(PrintStream out, ChessBoard board, ChessGame.TeamColor playerColor) {
-
         drawTopBoarder(out, playerColor);
         if (playerColor == ChessGame.TeamColor.WHITE) {
 
@@ -69,6 +68,7 @@ public class ChessArt {
             } else {
 
                 for (int boardCol = BOARD_SIZE_IN_SQUARES -1 ; boardCol >= 0; --boardCol) {
+                    setBorder(out);
                     printSquareRow(out, squareRow, columnLabels[boardCol], BORDER_BG, BORDER_TEXT);
                 }
 
