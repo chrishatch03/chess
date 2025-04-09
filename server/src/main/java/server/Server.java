@@ -1,5 +1,7 @@
 package server;
 
+import java.util.HashSet;
+
 import com.google.gson.Gson;
 import dataaccess.*;
 import exception.ResponseException;
@@ -206,6 +208,7 @@ public class Server {
         userService.deleteAll();
         authService.deleteAll();
         gameService.deleteAll();
+        webSocketHandler.finishedGames = java.util.Collections.synchronizedSet(new HashSet<>());
         return sendResponse(req,res,new EmptyResponse());
     }
 

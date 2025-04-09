@@ -23,7 +23,7 @@ import service.*;
 public class WebSocketHandler {
 
     private final ConnectionManager connections = new ConnectionManager();
-    private Set<Integer> finishedGames = java.util.Collections.synchronizedSet(new HashSet<>());
+    public Set<Integer> finishedGames = java.util.Collections.synchronizedSet(new HashSet<>());
     private final AuthService authService;
     private final UserService userService;
     private final GameService gameService;
@@ -226,10 +226,10 @@ public class WebSocketHandler {
             throw new ResponseException(400, "Error: requester cannot resign from game because they are a silly observer");
         }
     
-        // // Check if already over
-        // if (finishedGames.contains(command.getGameID())) {
-        //     throw new ResponseException(400, "Error: game is over");
-        // }
+         // Check if already over
+         if (finishedGames.contains(command.getGameID())) {
+             throw new ResponseException(400, "Error: game is over");
+         }
     
         finishedGames.add(command.getGameID());
         Notification resignNote = new Notification(
