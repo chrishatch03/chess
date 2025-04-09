@@ -10,6 +10,7 @@ import java.util.Objects;
  */
 public class ServerMessage {
     ServerMessageType serverMessageType;
+    
 
     // Don't alter this method
     public enum ServerMessageType {
