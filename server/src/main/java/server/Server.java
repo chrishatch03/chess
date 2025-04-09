@@ -21,38 +21,39 @@ public class Server {
 
     public Server() {
 
-        webSocketHandler = new WebSocketHandler();
-
+        
         UserService tempUserService = null;
         AuthService tempAuthService = null;
         GameService tempGameService = null;
-
+        
         try {
             tempUserService = new UserService(new UserSqlDAO());
         } catch (DataAccessException ex) {
             System.err.println("Error: could not configure user sql db: " + ex.getMessage());
         }
-
+        
         try {
             tempAuthService = new AuthService(new AuthSqlDAO());
         } catch (DataAccessException ex) {
             System.err.println("Error: could not configure auth sql db: " + ex.getMessage());
         }
-
+        
         try {
             tempGameService = new GameService(new GameSqlDAO());
         } catch (DataAccessException ex) {
             System.err.println("Error: could not configure game sql db: " + ex.getMessage());
         }
-
+        
         if (tempUserService == null || tempAuthService == null || tempGameService == null) {
             System.out.println("Error: a service failed while configuring dbs");
             System.exit(1);
         }
-
+        
         this.userService = tempUserService;
         this.authService = tempAuthService;
         this.gameService = tempGameService;
+
+        webSocketHandler = new WebSocketHandler(this.authService, this.userService, this.gameService);
     }
 
     public int run(int desiredPort) {
@@ -169,9 +170,6 @@ public class Server {
             System.out.println("playerColor: " + joinGameRequest.playerColor());
             if (!"white".equalsIgnoreCase(joinGameRequest.playerColor()) &&
                     !"black".equalsIgnoreCase(joinGameRequest.playerColor())) {
-                        // if ("observer".equalsIgnoreCase(joinGameRequest.playerColor())) {
-                        //     // 
-                        // }
                 throw new ResponseException(400, "Error: bad request - invalid team color");
             }
             if (joinGameRequest.gameID() == null) {
@@ -202,25 +200,6 @@ public class Server {
         gameService.updateGame(request, userData);
         return sendResponse(req,res,new EmptyResponse());
     }
-
-    // private Object observeGame(Request req, Response res) throws ResponseException {
-    //     var authToken = req.headers("Authorization:");
-    //     if (authToken == null == authToken.isEmpty()) {
-    //         throw new ResponseException(401, "Error: unauthorized");
-    //     }
-    //     var authData = authService.sessionExists(authToken);
-    //     var userData = userService.get(authData.username());
-    //     JoinGameRequest request = serializer.fromJson(req.body(), JoinGameRequest.class);
-    //     System.out.println("observing game: " + request.playerColor());
-    //     if (!"observer".equalsIgnoreCase(request.playerColor())) {
-    //         throw new ResponseException(400, "Error: bad request - failed to join game as observer");
-    //     }
-    //     if (request.gameID() == null) {
-    //         throw new ResponseException(400, "Error: bad request - invalid game ID");
-    //     }
-    //     GameData game = gameService.get(request.gameID());
-    //     return sendResponse(req,res,game);
-    // }
 
 //    Clear Entire Application
     private Object clearApp(Request req, Response res) throws ResponseException {
