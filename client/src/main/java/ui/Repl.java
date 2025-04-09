@@ -10,8 +10,6 @@ import exception.ResponseException;
 import model.*;
 import ui.websocket.ServerMessageHandler;
 import ui.websocket.WebSocketFacade;
-import websocket.commands.MoveCommand;
-import websocket.commands.UserGameCommand;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 import websocket.messages.*;
@@ -24,7 +22,6 @@ public class Repl implements ServerMessageHandler {
     private final PreLoginUI preLoginClient;
     private final PostLoginUI postLoginClient;
     private final GameplayUI gameplayClient;
-    private final WebSocketFacade ws;
 
     private String authToken = null;
     private String username = null;
@@ -33,12 +30,9 @@ public class Repl implements ServerMessageHandler {
     private boolean observer = false;
     public boolean highlight = false;
 
-    public enum GameValues {
-        OBSERVER
-    };
-
     public Repl(String serverUrl) throws ResponseException {
 
+        WebSocketFacade ws;
         try {
             ws = new WebSocketFacade(serverUrl, this);
         } catch (ResponseException exception) {
@@ -57,12 +51,12 @@ public class Repl implements ServerMessageHandler {
         var result = "";
         while (!result.trim().equals("quit")) {
             if (currentGame != null) {
-                if (highlight == false) {
+                if (!highlight) {
                     gameplayClient.drawBoard(playerColor, currentGame.game().getBoard());
                 } else {
                     highlight = false;
                 }
-                if (observer == true) { System.out.print(GameplayUI.help("observer")); }
+                if (observer) { System.out.print(GameplayUI.help("observer")); }
                 else { System.out.print(GameplayUI.help("player")); }
             }
             printPrompt();
@@ -150,14 +144,8 @@ public class Repl implements ServerMessageHandler {
                     this.currentGame = new Gson().fromJson(message, LoadGameMessage.class).game;
                     displayMessage("","");
                 }
-                case ERROR -> {
-                    displayMessage(SET_TEXT_COLOR_RED, new Gson().fromJson(message, WebSocketError.class).errorMessage);
-                    
-                }
-                case NOTIFICATION -> {
-                    displayMessage(SET_TEXT_COLOR_BLUE, new Gson().fromJson(message, Notification.class).message);
-
-                }
+                case ERROR -> displayMessage(SET_TEXT_COLOR_RED, new Gson().fromJson(message, WebSocketError.class).errorMessage);
+                case NOTIFICATION -> displayMessage(SET_TEXT_COLOR_BLUE, new Gson().fromJson(message, Notification.class).message);
                 default -> throw new ResponseException(400, "Unknown command type");
             }
         } catch (Exception ex) {
@@ -167,10 +155,10 @@ public class Repl implements ServerMessageHandler {
 
     public void displayMessage(String textColor, String message) {
         gameplayClient.drawBoard(playerColor, currentGame.game().getBoard());
-        if (!message.isEmpty() || message != "") { 
+        if (!message.isEmpty()) {
             System.out.println(textColor + message + RESET_TEXT_COLOR);
         } 
-        if (observer == true) { System.out.print(GameplayUI.help("observer")); }
+        if (observer) { System.out.print(GameplayUI.help("observer")); }
         else { System.out.print(GameplayUI.help("player")); }
         printPrompt();
     }

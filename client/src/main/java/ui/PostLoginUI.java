@@ -14,7 +14,7 @@ public class PostLoginUI {
     private HashMap<Integer, GameData> games = new HashMap<>();
     private final WebSocketFacade ws;
 
-    public PostLoginUI(String serverUrl, Repl repl, WebSocketFacade ws) throws ResponseException {
+    public PostLoginUI(String serverUrl, Repl repl, WebSocketFacade ws) {
         server = new ServerFacade(serverUrl);
         this.repl = repl;
         this.ws = ws;
@@ -66,7 +66,7 @@ public class PostLoginUI {
             int gameNum = 1;
             for (GameData currentGame : games) {
                 this.games.put(gameNum, currentGame);
-                output.append("\nGame ").append(String.valueOf(gameNum)).append(": ").append(currentGame.gameName());
+                output.append("\nGame ").append(gameNum).append(": ").append(currentGame.gameName());
                 String white = (currentGame.whiteUsername() == null || currentGame.whiteUsername().isEmpty()) ? "available" : currentGame.whiteUsername();
                 String black = (currentGame.blackUsername() == null || currentGame.blackUsername().isEmpty()) ? "available" : currentGame.blackUsername();
                 output.append("    white: ").append(white).append("  black: ").append(black);
@@ -83,10 +83,10 @@ public class PostLoginUI {
             // var games = server.listGames(repl.getAuthToken()).games();
             Integer gameNum = Integer.valueOf(params[1]);
             
-            if (gameNum == null || !this.games.containsKey(gameNum)) { return "Could not find game " + params[1]; }
+            if (!this.games.containsKey(gameNum)) { return "Could not find game " + params[1]; }
 
-            var isObserver = (playerColor.toLowerCase().equals("observer")) ? true : false;
-            if (isObserver == true) {
+            var isObserver = playerColor.equalsIgnoreCase("observer");
+            if (isObserver) {
                 GameData game = getGame(gameNum);
                 this.repl.setCurrentGame(game);
                 this.repl.setPlayerColor("white");
