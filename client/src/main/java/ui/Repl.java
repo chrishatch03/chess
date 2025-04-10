@@ -29,6 +29,7 @@ public class Repl implements ServerMessageHandler {
     private ChessGame.TeamColor playerColor = null;
     private boolean observer = false;
     public boolean highlight = false;
+    public boolean gameOver = false;
 
     public Repl(String serverUrl) throws ResponseException {
 
@@ -50,7 +51,7 @@ public class Repl implements ServerMessageHandler {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.trim().equals("quit")) {
-            if (currentGame != null) {
+            if (currentGame != null && !result.trim().equals("")) {
                 if (!highlight) {
                     gameplayClient.drawBoard(playerColor, currentGame.game().getBoard());
                 } else {
@@ -146,6 +147,7 @@ public class Repl implements ServerMessageHandler {
                 }
                 case ERROR -> displayMessage(SET_TEXT_COLOR_RED, new Gson().fromJson(message, WebSocketError.class).errorMessage);
                 case NOTIFICATION -> displayMessage(SET_TEXT_COLOR_BLUE, new Gson().fromJson(message, Notification.class).message);
+                case ENDGAME -> this.gameOver = true;
                 default -> throw new ResponseException(400, "Unknown command type");
             }
         } catch (Exception ex) {
@@ -155,9 +157,9 @@ public class Repl implements ServerMessageHandler {
 
     public void displayMessage(String textColor, String message) {
         gameplayClient.drawBoard(playerColor, currentGame.game().getBoard());
-        if (!message.isEmpty()) {
+        if (message != null && !message.isEmpty()) {
             System.out.println(textColor + message + RESET_TEXT_COLOR);
-        } 
+        }
         if (observer) { System.out.print(GameplayUI.help("observer")); }
         else { System.out.print(GameplayUI.help("player")); }
         printPrompt();

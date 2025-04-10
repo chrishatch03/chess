@@ -155,6 +155,7 @@ public class WebSocketHandler {
         }
 
         if (finishedGames.contains(command.getGameID())) {
+            connections.broadcastToGame(command.getGameID(), new ServerMessage(ServerMessage.ServerMessageType.ENDGAME));
             throw new ResponseException(400, "Error: game is over");
         }
 
@@ -178,11 +179,13 @@ public class WebSocketHandler {
         else { throw new ResponseException(500, "Error: somehow the playerColor still is different than white/black"); }
         
         if (game.game().isInCheckmate(playerTeamColor)) {
-            throw new ResponseException(400, "Error: game is over");
+            connections.broadcastToGame(command.getGameID(), new ServerMessage(ServerMessage.ServerMessageType.ENDGAME));
+            throw new ResponseException(400, "Game is over, your opponent won");
         }
 
         Collection<ChessMove> validMoves = game.game().validMoves(command.move.getStartPosition());
         if (!validMoves.contains(command.move)) {
+            if (game.game().isInCheck(playerTeamColor)) { throw new ResponseException(400, "Error: Invalid move, you're in check"); }
             throw new ResponseException(400, "Error: invalid Move");
         }
 
@@ -191,10 +194,43 @@ public class WebSocketHandler {
         
         var loadMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, newGameData);
         connections.broadcastToGame(command.getGameID(), loadMessage);
-        var notification = new
-                Notification(ServerMessageType.NOTIFICATION,
-                authData.username() + " moved from " + printMove(command.move));
-        connections.broadcastExclude(command.getAuthToken(), command.getGameID(), notification);
+
+        String whiteInCheckmate = "";
+        String blackInCheckmate = "";
+        String whiteInCheck = "";
+        String blackInCheck = "";
+
+        if (newGameData.game().isInCheckmate(ChessGame.TeamColor.WHITE) || newGameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            if (newGameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                whiteInCheckmate = "\nCheckmate! Black wins";
+                finishedGames.add(command.getGameID());
+                connections.broadcastToGame(command.getGameID(), new ServerMessage(ServerMessage.ServerMessageType.ENDGAME));
+            } else if (newGameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                blackInCheckmate = "\nCheckmate! White wins";
+                finishedGames.add(command.getGameID());
+                connections.broadcastToGame(command.getGameID(), new ServerMessage(ServerMessage.ServerMessageType.ENDGAME));
+            }
+            var notification = new
+                    Notification(ServerMessageType.NOTIFICATION,
+                    authData.username() + " moved from " + printMove(command.move) + whiteInCheckmate + blackInCheckmate);
+            connections.broadcastToGame(command.getGameID(), notification);
+        } else if (newGameData.game().isInCheck(ChessGame.TeamColor.WHITE) || newGameData.game().isInCheck(ChessGame.TeamColor.BLACK)) {
+            if (newGameData.game().isInCheck(ChessGame.TeamColor.WHITE)) {
+                whiteInCheck = "\nWhite is in check";
+            } else if (newGameData.game().isInCheck(ChessGame.TeamColor.BLACK)) {
+                blackInCheck = "\nBlack is in check";
+            }
+            var notification = new
+                    Notification(ServerMessageType.NOTIFICATION,
+                    authData.username() + " moved from " + printMove(command.move) + whiteInCheck + blackInCheck);
+            connections.broadcastToGame(command.getGameID(), notification);
+        } else {
+            var notification = new
+                    Notification(ServerMessageType.NOTIFICATION,
+                    authData.username() + " moved from " + printMove(command.move));
+            connections.broadcastExclude(command.getAuthToken(), command.getGameID(), notification);
+        }
+
     }
 
     private String printMove(ChessMove move) {

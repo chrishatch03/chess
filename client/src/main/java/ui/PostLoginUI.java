@@ -61,6 +61,7 @@ public class PostLoginUI {
 
     public String listGames(String... params) throws ResponseException {
         if (params.length == 0) {
+            this.repl.gameOver = false;
             this.games = new HashMap<>();
             var games = server.listGames(repl.getAuthToken()).games();
             StringBuilder output = new StringBuilder(SET_TEXT_COLOR_WHITE + "Games Available: \n" + SET_TEXT_COLOR_BLACK
@@ -86,7 +87,7 @@ public class PostLoginUI {
             var playerColor = params[0];
             // var games = server.listGames(repl.getAuthToken()).games();
             Integer gameNum = Integer.valueOf(params[1]);
-            
+            this.repl.gameOver = false;
             if (!this.games.containsKey(gameNum)) { return "Could not find game " + params[1]; }
 
             var isObserver = playerColor.equalsIgnoreCase("observer");

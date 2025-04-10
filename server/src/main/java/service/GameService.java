@@ -51,10 +51,7 @@ public class GameService {
             } else {
                 throw new ResponseException(400, "Error: bad request");
             }
-
-            // Perform the update using a common method
             updateGameWithNewPlayer(gameData.gameID(), newWhiteUsername, newBlackUsername, gameData);
-
             return gameDAO.get(joinGameRequest.gameID());
         } catch (DataAccessException ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -95,7 +92,6 @@ public class GameService {
             }
             ChessGame.TeamColor turnColor = game.getTeamTurn();
 
-            // is the user in the game
             if (playerColor.equalsIgnoreCase("white")) {
                 if (gameData.whiteUsername() == null || !gameData.whiteUsername().equalsIgnoreCase(userData.username())) {
                     throw new ResponseException(403, "Error: bad request - white username doesn't match request playerColor");
@@ -111,7 +107,6 @@ public class GameService {
                     throw new ResponseException(403, "Error: bad request - White's turn, wait your turn black");
                 }
             } 
-
 
             game.makeMove(move);
 
@@ -136,7 +131,6 @@ public class GameService {
             if (gameData == null) {
                 throw new ResponseException(500, "Error: game doesn't exist");
             }
-            // is the user in the game
             if (request.playerColor().toLowerCase().equals("white")) {
                 if (gameData.whiteUsername() == null || !gameData.whiteUsername().equalsIgnoreCase(userData.username())) {
                     throw new ResponseException(403, "Error: bad request - white username doesn't match request playerColor");
